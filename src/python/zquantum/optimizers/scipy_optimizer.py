@@ -4,16 +4,12 @@ import scipy
 class ScipyOptimizer(Optimizer):
 
     def __init__(self, method, options={}):
-        # TODO
         self.method = method
         self.options = options
         if "keep_value_history" not in self.options.keys():
             self.options["keep_value_history"] = False
 
     def minimize(self, cost_function, initial_params=None, callback=None):
-        """
-        TODO
-        """
         history = []
 
         def default_callback(params):

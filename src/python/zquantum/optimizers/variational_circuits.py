@@ -2,14 +2,10 @@ from zquantum.core.circuit import build_ansatz_circuit
 from qeopenfermion import evaluate_qubit_operator
 import copy
 
-#TODO: tests
 def optimize_variational_circuit(ansatz, operator, initial_params,
     backend, optimizer):
-    """Optimize a variational circuit.
-        TODO
-    """
+    """Optimize a variational circuit."""
     
-    #TODO: Do we want to keep that or move it outside?
     def get_cost_function(target_operator):
 
         def cost_function(params):

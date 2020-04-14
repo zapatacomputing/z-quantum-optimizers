@@ -5,7 +5,6 @@ import warnings
 import numpy as np
 
 def validate_optimization_results(optimization_results):
-    #TODO: docs
     required_fields = ["opt_value", "opt_params"]
     recommended_fields = ["nfev", "nit"]
     for field in required_fields:
@@ -55,8 +54,7 @@ def save_optimization_results(optimization_results, filename):
     """
     data = {}
     data['schema'] = SCHEMA_VERSION + '-optimization_result'
-    #TODO: This code has been produced after 10pm. 
-    #Please revise it at your convenience.
+    
     for key in optimization_results:
         if key != 'history':
             if type(optimization_results[key]) == np.ndarray:
