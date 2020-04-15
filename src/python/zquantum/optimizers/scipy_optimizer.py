@@ -10,6 +10,17 @@ class ScipyOptimizer(Optimizer):
             self.options["keep_value_history"] = False
 
     def minimize(self, cost_function, initial_params=None, callback=None):
+        """
+        Minimizes given cost function using functions from scipy.minimize.
+
+        Args:
+            cost_function(): python method which takes numpy.ndarray as input
+            initial_params(np.ndarray): initial parameters to be used for optimization
+            callback(): callback function. If none is provided, a default one will be used.
+        
+        Returns:
+            optimization_results(scipy.optimize.OptimizeResults): results of the optimization.
+        """
         history = []
 
         def default_callback(params):

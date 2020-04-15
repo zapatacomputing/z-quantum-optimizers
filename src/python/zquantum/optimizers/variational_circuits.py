@@ -4,7 +4,19 @@ import copy
 
 def optimize_variational_circuit(ansatz, operator, initial_params,
     backend, optimizer):
-    """Optimize a variational circuit."""
+    """
+    Calculates optimal parameters for the variational circuit.
+
+    Args:
+        ansatz(zquantum.core.CircuitTemplate): ansatz for which we want to find the optimal parameters
+        operator(openfermion.SymbolicOperator): qubit operator for which we do the optimization
+        initial_params(numpy.ndarray): initial parameters of the ansatz.
+        backend(zquantum.core.interfaces.QuantumBackend): backend to be used for simulation
+        optimizer(zquantum.core.interfaces.Optimizer): optimizer to be used for finding the optimal parameters
+    
+    Returns:
+        optimization_results(scipy.optimize.OptimizeResults): results of the optimization.
+    """
     
     def get_cost_function(target_operator):
 
