@@ -68,3 +68,6 @@ You can find the development guidelines in the [`z-quantum-core` repository](htt
 ### Running tests
 
 In order to run tests please run `pytest .` from the main directory.
+
+In order for the tests related to the daemon optimizer to work you need to first specify FLASK_APP environmental variable:
+`export FLASK_APP=/path/to/z-quantum-optimizer/src/python/orquestra/optimizers/daemon-optimizer/proxy/rest.py`.
