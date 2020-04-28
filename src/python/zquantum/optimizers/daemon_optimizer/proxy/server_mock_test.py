@@ -2,6 +2,8 @@
 
 import unittest
 import requests
+import socket
+import time
 
 from .server_mock import MockServer
 
@@ -9,6 +11,21 @@ class TestMockServer(unittest.TestCase):
     def setUp(self):
         self.server = MockServer(port=8888)
         self.server.start()
+
+        # Get the proxy IP address
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("localhost", 80))
+        self.ipaddress = str(s.getsockname()[0])
+        s.close()
+        
+        self.max_tries = 60
+        counter = 0
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            while(s.connect_ex((self.ipaddress, 8888)) != 0):
+                time.sleep(1)
+                counter += 1
+                if counter > self.max_tries:
+                    raise SystemExit("Testing server took too long to start.")
 
     def test_mock_with_callback(self):
         self.called = False
@@ -27,3 +44,11 @@ class TestMockServer(unittest.TestCase):
 
     def tearDown(self):
         self.server.shutdown_server()
+
+        counter = 0
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            while(s.connect_ex((self.ipaddress, 8888)) == 0):
+                time.sleep(1)
+                counter += 1
+                if counter > self.max_tries:
+                    raise SystemExit("Testing server took too long to start.")

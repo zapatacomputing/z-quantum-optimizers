@@ -25,9 +25,14 @@ class TestOptimizationServer(unittest.TestCase):
         self.ipaddress = str(s.getsockname()[0])
         s.close()
         
+        self.max_tries = 60
+        counter = 0 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             while(s.connect_ex((self.ipaddress, self.listening_port)) != 0):
                 time.sleep(1)
+                counter += 1
+                if counter > self.max_tries:
+                    raise SystemExit("Testing server took too long to start.")
  
 
     def test_ping_204(self):
@@ -535,9 +540,13 @@ class TestOptimizationServer(unittest.TestCase):
         print(response.read().decode("utf-8"))
         self.proxy_process.terminate()
 
+        counter = 0
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             while(s.connect_ex((self.ipaddress, self.listening_port)) == 0):
                 time.sleep(1)
+                counter += 1
+                if counter > self.max_tries:
+                    raise SystemExit("Testing server took too long to start.")
  
     @classmethod
     def tearDownClass(cls):
