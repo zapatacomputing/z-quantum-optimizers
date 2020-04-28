@@ -24,8 +24,11 @@ class TestOptimizationServer(unittest.TestCase):
         s.connect(("8.8.8.8", 80))
         self.ipaddress = str(s.getsockname()[0])
         s.close()
-
-        time.sleep(2)
+        
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            while(s.connect_ex((self.ipaddress, self.listening_port)) != 0):
+                time.sleep(1)
+ 
 
     def test_ping_204(self):
         connection = http.client.HTTPConnection(self.ipaddress+":"+str(self.listening_port), timeout=2)
