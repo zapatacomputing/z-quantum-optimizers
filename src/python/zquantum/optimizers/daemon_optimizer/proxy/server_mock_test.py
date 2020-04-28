@@ -7,7 +7,7 @@ from .server_mock import MockServer
 
 class TestMockServer(unittest.TestCase):
     def setUp(self):
-        self.server = MockServer(port=1234)
+        self.server = MockServer(port=8888)
         self.server.start()
 
     def test_mock_with_callback(self):
