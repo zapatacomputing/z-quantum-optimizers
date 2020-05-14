@@ -32,7 +32,7 @@ spec:
           data: |
             import os
             from zquantum.optimizers.utils import save_optimization_results
-            from zquantum.optimizers.variational_circuits import optimize_variational_circuit
+            from zquantum.optimizers.cost_function import EvaluateOperatorCostFunction
             from zquantum.core.circuit import load_circuit_template, load_circuit_template_params, save_circuit_template_params, load_parameter_grid
             from qeopenfermion import load_qubit_operator
             from zquantum.core.utils import create_object
@@ -62,6 +62,8 @@ spec:
             backend_specs = {{inputs.parameters.backend-specs}}
             backend = create_object(backend_specs)
             
+            cost_function = EvaluateOperatorCostFunction(operator, ansatz, backend)
+
             opt_results = optimize_variational_circuit(ansatz, operator, initial_parameters, backend, optimizer)
 
             save_optimization_results(opt_results, 'optimization-results.json')
