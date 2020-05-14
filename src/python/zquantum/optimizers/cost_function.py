@@ -114,11 +114,12 @@ class EvaluateOperatorCostFunction(CostFunction):
                         constraints:Optional[Dict]=None, 
                         save_evaluation_history:bool=True, 
                         use_analytical_gradient:bool=False):
+        self.target_operator = target_operator
+        self.ansatz = ansatz
+        self.backend = backend
         self.evaluations_history = []
         self.save_evaluation_history = save_evaluation_history
         self.use_analytical_gradient = use_analytical_gradient
-        self.target_operator = operator
-        self.ansatz = ansatz
 
     def _evaluate(self, parameters:np.ndarray) -> float:
         """
@@ -151,3 +152,17 @@ class EvaluateOperatorCostFunction(CostFunction):
             raise NotImplementedError
         else:
             raise NotImplementedError
+
+    def get_numerical_gradient(self, parameters:np.ndarray) -> np.ndarray:
+        """
+        Evaluates the gradient of the cost function for given parameters.
+        Whether the gradient is calculated analytically (if implemented) or numerically, 
+        is indicated by `use_analytical_gradient` field.
+
+        Args:
+            parameters: parameters for which we calculate the gradient.
+
+        Returns:
+            np.ndarray: gradient vector 
+        """
+        raise NotImplementedError
