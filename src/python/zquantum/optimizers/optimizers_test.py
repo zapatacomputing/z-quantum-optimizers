@@ -1,10 +1,10 @@
 import unittest
 import numpy as np
-from .cost_function import BasicCostFunction
 from .scipy_optimizer import ScipyOptimizer
 from .grid_search import GridSearchOptimizer
 from .cma_es_optimizer import CMAESOptimizer
 from zquantum.core.circuit import ParameterGrid
+from zquantum.core.cost_function import BasicCostFunction
 from scipy.optimize import OptimizeResult
 
 def rosen(x):
