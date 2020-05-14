@@ -64,7 +64,7 @@ spec:
             
             cost_function = EvaluateOperatorCostFunction(operator, ansatz, backend)
 
-            opt_results = optimize_variational_circuit(ansatz, operator, initial_parameters, backend, optimizer)
+            opt_results = optimizer.minimize(cost_function, initial_params)
 
             save_optimization_results(opt_results, 'optimization-results.json')
             save_circuit_template_params(opt_results.opt_params, 'optimized_parameters.json')
