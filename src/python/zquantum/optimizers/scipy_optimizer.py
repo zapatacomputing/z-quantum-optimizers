@@ -14,7 +14,7 @@ class ScipyOptimizer(Optimizer):
         Minimizes given cost function using functions from scipy.minimize.
 
         Args:
-            cost_function(): python method which takes numpy.ndarray as input
+            cost_function(zquantum.core.interfaces.cost_function.CostFunction): object representing cost function we want to minimize
             initial_params(np.ndarray): initial parameters to be used for optimization
             callback(): callback function. If none is provided, a default one will be used.
         
@@ -36,7 +36,7 @@ class ScipyOptimizer(Optimizer):
         if callback is None:
             callback = default_callback
 
-        result = scipy.optimize.minimize(cost_function,
+        result = scipy.optimize.minimize(cost_function.evaluate,
                                         initial_params,
                                         method=self.method,
                                         options=self.options,

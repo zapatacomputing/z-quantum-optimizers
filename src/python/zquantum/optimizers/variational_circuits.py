@@ -2,7 +2,7 @@ from zquantum.core.circuit import build_ansatz_circuit
 from qeopenfermion import evaluate_qubit_operator
 import copy
 
-def optimize_variational_circuit(ansatz, operator, initial_params,
+def optimize_variational_circuit(ansatz, cost_function, operator, initial_params,
     backend, optimizer):
     """
     Calculates optimal parameters for the variational circuit.

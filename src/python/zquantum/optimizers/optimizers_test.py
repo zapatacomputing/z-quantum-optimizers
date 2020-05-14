@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+from .cost_function import BasicCostFunction
 from .scipy_optimizer import ScipyOptimizer
 from .grid_search import GridSearchOptimizer
 from .cma_es_optimizer import CMAESOptimizer
@@ -14,7 +15,7 @@ class TestOptimizers(unittest.TestCase):
 
     def setUp(self):
         grid = ParameterGrid([[0.5, 1.5, 0.1], [0.5, 1.5, 0.1]])
-
+        self.cost_function = BasicCostFunction(rosen)
         self.scipy_optimizer = ScipyOptimizer(method="L-BFGS-B")
         self.grid_search_optimizer = GridSearchOptimizer(grid)
         self.cmaes_optimizer = CMAESOptimizer(options={"sigma_0": 0.1})
@@ -22,7 +23,7 @@ class TestOptimizers(unittest.TestCase):
 
     def test_optimization(self):
         for optimizer in self.optimizers:
-            results = optimizer.minimize(rosen, initial_params=[0, 0])
+            results = optimizer.minimize(self.cost_function, initial_params=[0, 0])
             self.assertAlmostEqual(results.opt_value, 0, places=5)
             self.assertAlmostEqual(results.opt_params[0], 1, places=4)
             self.assertAlmostEqual(results.opt_params[1], 1, places=4)

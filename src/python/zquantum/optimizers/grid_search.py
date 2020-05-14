@@ -1,4 +1,5 @@
 from zquantum.core.interfaces.optimizer import Optimizer
+from zquantum.core.interfaces.cost_function import CostFunction
 from zquantum.core.circuit import ParameterGrid
 from scipy.optimize import OptimizeResult
 from typing import Dict, Optional, Callable
@@ -18,12 +19,12 @@ class GridSearchOptimizer(Optimizer):
             self.options["keep_value_history"] = False
 
 
-    def minimize(self, cost_function: Callable, initial_params:Optional[np.ndarray]=None) -> OptimizeResult:
+    def minimize(self, cost_function: CostFunction, initial_params:Optional[np.ndarray]=None) -> OptimizeResult:
         """
         Finds the parameters which minimize given cost function, by trying all the parameters from the grid.
 
         Args:
-            cost_function: a cost function to be minimized, depends on some numerical parameters.
+            cost_function(zquantum.core.interfaces.cost_function.CostFunction): object representing cost function we want to minimize
             inital_params (np.ndarray): initial parameters for the cost function
 
         Returns:
@@ -35,7 +36,7 @@ class GridSearchOptimizer(Optimizer):
         min_value = None
         nfev = 0
         for params in self.grid.params_list:
-            value = cost_function(params)
+            value = cost_function.evaluate(params)
             if self.options["keep_value_history"]:
                 history.append({'params': params, 'value': value})
             nfev += 1
