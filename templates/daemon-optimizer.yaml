@@ -27,8 +27,8 @@ spec:
         path: /app/start_proxy.py
         raw:
           data: |
-            from zquantum.optimizers.deamon_optimizer.optimize import optimize_variational_circuit_with_proxy
-            from zquantum.optimizers.deamon_optimizer.optimizer.proxy import Client
+            from zquantum.optimizers.daemon_optimizer.optimize import optimize_variational_circuit_with_proxy
+            from zquantum.optimizers.daemon_optimizer.optimizer.proxy import Client
             from zquantum.core.circuit import load_circuit_template_params
             from zquantum.optimizers import save_optimization_results
             from zquantum.core.utils import create_object
