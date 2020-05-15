@@ -6,7 +6,16 @@ import io
 
 class ProxyCostFunction(CostFunction):
     """
-    TODO
+    Implementation of CostFunction interface, which allows to use proxy as cost function.
+
+    Args:
+        client (zquantum.core.optimizers.proxy.Client): a client for interacting with
+            the proxy
+        save_evaluation_history (bool): flag indicating whether we want to store the history of all the evaluations.
+
+    Params:
+        evaluations_history (list): List of the tuples (parameters, value) representing all the evaluation in a chronological order.
+        save_evaluation_history (bool): see Args
     """
     def __init__(self, client, save_evaluation_history=True):
         self.client = client
@@ -16,14 +25,26 @@ class ProxyCostFunction(CostFunction):
 
     def evaluate(self, parameters):
         """
-        TODO
+        Evaluates the value of the cost function for given parameters.
+
+        Args:
+            parameters (np.ndarray): parameters for which the evaluation should occur
+
+        Returns:
+            value: cost function value for given parameters, either int or float.
         """
         value = self._evaluate(parameters)
         return value
 
     def _evaluate(self, parameters):
         """
-        TODO
+        Evaluates the value of the cost function for given parameters by communicating with client.
+
+        Args:
+            parameters (np.ndarray): parameters for which the evaluation should occur
+
+        Returns:
+            value: cost function value for given parameters, either int or float.
         """
         # Encode params to json string
         save_circuit_template_params(parameters, 'current_optimization_params.json')
@@ -52,12 +73,15 @@ class ProxyCostFunction(CostFunction):
     def get_gradient(self, parameters):
         raise NotImplemented
 
-    def get_numerical_gradient(self, parameters):
-        raise NotImplemented
-
     def callback(self, parameters):
         """
-        TODO
+        Callback function to be executed by the optimizer.
+
+        Args:
+            parameters (np.ndarray): parameters for which the evaluation should occur
+
+        Returns:
+            None
         """
         self.evaluations_history[self.current_iteration]['params'] = parameters
 
@@ -66,7 +90,7 @@ class ProxyCostFunction(CostFunction):
 
         # If getting the value history, perform an evaluation with current parameters
         if self.save_evaluation_history:
-            self.evaluations_history[self.current_iteration]['value'] = cost_function.evaluate(parameters)
+            self.evaluations_history[self.current_iteration]['value'] = self.evaluate(parameters)
 
             print("Current Value: {}".format(
                 self.evaluations_history[self.current_iteration]['value']), flush=True)
