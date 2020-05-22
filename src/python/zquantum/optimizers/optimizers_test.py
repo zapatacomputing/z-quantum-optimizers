@@ -34,7 +34,6 @@ class TestOptimizers(unittest.TestCase):
             self.assertIn("opt_params", results.keys())
             self.assertIn("history", results.keys())
 
-
     def test_cmaes_optimizer_incorrect_initialization(self):
         self.assertRaises(RuntimeError, lambda: CMAESOptimizer(options={}))
         self.assertRaises(TypeError, lambda: CMAESOptimizer())

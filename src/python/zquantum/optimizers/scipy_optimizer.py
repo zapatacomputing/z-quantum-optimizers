@@ -3,9 +3,11 @@ import scipy
 
 class ScipyOptimizer(Optimizer):
 
-    def __init__(self, method, options={}):
+    def __init__(self, method, constraints=None, options={}):
         self.method = method
         self.options = options
+        if constraints is None:
+            self.constraints = []
         if "keep_value_history" not in self.options.keys():
             self.options["keep_value_history"] = False
 
@@ -40,6 +42,7 @@ class ScipyOptimizer(Optimizer):
                                         initial_params,
                                         method=self.method,
                                         options=self.options,
+                                        constraints=self.constraints,
                                         callback=callback)
 
         result.opt_value = result.fun
