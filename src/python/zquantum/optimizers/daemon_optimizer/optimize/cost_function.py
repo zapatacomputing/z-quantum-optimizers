@@ -17,11 +17,13 @@ class ProxyCostFunction(CostFunction):
         evaluations_history (list): List of the tuples (parameters, value) representing all the evaluation in a chronological order.
         save_evaluation_history (bool): see Args
     """
-    def __init__(self, client, save_evaluation_history=True):
+    def __init__(self, client, save_evaluation_history=True, epsilon:float=1e-5):
         self.client = client
         self.save_evaluation_history = save_evaluation_history
-        self.evaluations_history = [{'optimization-evaluation-ids': []}]
+        self.evaluations_history = []
         self.current_iteration = 0
+        self.gradient_type = "finite_difference"
+        self.epsilon = epsilon
 
     def evaluate(self, parameters):
         """
@@ -54,9 +56,6 @@ class ProxyCostFunction(CostFunction):
         # POST params to proxy
         evaluation_id = self.client.post_argument_values(current_params_string)
 
-        # SAVE ID to optimization result['history']
-        self.evaluations_history[self.current_iteration]['optimization-evaluation-ids'].append(evaluation_id)
-
         # POST status to EVALUATING
         self.client.post_status("EVALUATING")
 
@@ -68,10 +67,15 @@ class ProxyCostFunction(CostFunction):
         evaluation_string = self.client.get_evaluation_result(evaluation_id)
         value_estimate = load_value_estimate(io.StringIO(evaluation_string))
 
-        return value_estimate.value
+        # SAVE ID to optimization result['history']
+        if self.save_evaluation_history:
+            if len(self.evaluations_history) < self.current_iteration + 1:
+                self.evaluations_history.append({'optimization-evaluation-ids': []})
+            self.evaluations_history[self.current_iteration]['optimization-evaluation-ids'].append(evaluation_id)
+            self.evaluations_history[self.current_iteration]["params"] = parameters
+            self.evaluations_history[self.current_iteration]["value"] =  value_estimate.value
 
-    def get_gradient(self, parameters):
-        raise NotImplemented
+        return value_estimate.value
 
     def callback(self, parameters):
         """
@@ -99,4 +103,3 @@ class ProxyCostFunction(CostFunction):
 
         # Update currrent_iteration index and add new blank history
         self.current_iteration += 1
-        self.evaluations_history.append({'optimization-evaluation-ids': []})
