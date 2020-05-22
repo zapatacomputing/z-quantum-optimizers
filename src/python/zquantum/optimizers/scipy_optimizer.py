@@ -36,7 +36,7 @@ class ScipyOptimizer(Optimizer):
         if callback is None:
             callback = default_callback
 
-        result = scipy.optimize.minimize(cost_function,
+        result = scipy.optimize.minimize(cost_function.evaluate,
                                         initial_params,
                                         method=self.method,
                                         options=self.options,
