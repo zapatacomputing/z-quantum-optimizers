@@ -46,7 +46,9 @@ class ScipyOptimizer(Optimizer):
                                         callback=callback)
 
         result.opt_value = result.fun
+        del result['fun']
         result.opt_params = result.x
+        del result['x']
         result.history = history
         if 'hess_inv' in result.keys():
             del result['hess_inv']

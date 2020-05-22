@@ -69,6 +69,8 @@ def save_optimization_results(optimization_results, filename):
                 data[key] = optimization_results[key].tolist()
             elif type(optimization_results[key]) == bytes:
                 data[key] = optimization_results[key].decode("utf-8")
+            elif type(optimization_results[key]).__module__ == np.__name__:
+                data[key] = optimization_results[key].item()
             else:
                 data[key] = optimization_results[key]
 
