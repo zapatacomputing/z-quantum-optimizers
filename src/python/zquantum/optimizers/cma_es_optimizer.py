@@ -17,7 +17,7 @@ class CMAESOptimizer(Optimizer):
         (CMA-ES).
 
         Args:
-            cost_function: the function whose return value is to be minimized.
+            cost_function(zquantum.core.interfaces.cost_function.CostFunction): object representing cost function we want to minimize
             initial_params (numpy.ndarray): initial guess for the ansatz parameters.
 
         Returns:
@@ -29,7 +29,7 @@ class CMAESOptimizer(Optimizer):
         history = []
         def wrapped_cost_function(params):
 
-            value = cost_function(params)
+            value = cost_function.evaluate(params)
             history.append({'params': params, 'value': value})
             print(f'Function evaluation {len(history)}: {value}', flush=True)
             print(f'{params}', flush=True)
