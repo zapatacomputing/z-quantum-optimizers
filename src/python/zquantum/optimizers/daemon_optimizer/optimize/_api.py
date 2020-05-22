@@ -29,13 +29,6 @@ def optimize_variational_circuit_with_proxy(initial_params, optimizer, client, *
                 `success`, `nfev`, and `nit`
         - **optimized_params** (**numpy.array**): the optimized parameters
     """
-    current_iteration = 0
-    keep_value_history = optimizer.options['keep_value_history']
-
-    # Optimization Results Object
-
-    opt_results = scipy.optimize.OptimizeResult({'value': None, 'status': None, 'success': False, 'nfev': 0,
-        'nit': 0, 'history':[{'optimization-evaluation-ids': []}]})
     # Define cost function that interacts with client
     cost_function = ProxyCostFunction(client)
     
@@ -48,6 +41,8 @@ def optimize_variational_circuit_with_proxy(initial_params, optimizer, client, *
                                      callback=cost_function.callback)
     
     # Update opt_results object
+    # TODO: this is done temporarily to ensure no data is lost. However, storing history 
+    # should be handled by optimizer, not cost_function.
     opt_results['history'] = cost_function.evaluations_history
 
     # Since a new history element is added in the callback function, if there is 
