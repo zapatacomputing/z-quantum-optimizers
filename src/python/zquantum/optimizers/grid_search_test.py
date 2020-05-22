@@ -5,10 +5,10 @@ from zquantum.core.circuit import ParameterGrid
 from zquantum.core.interfaces.optimizer_test import OptimizerTests
 from .grid_search import GridSearchOptimizer
 
-class CMAESOptimizerTests(unittest.TestCase, OptimizerTests):
+class GridSearchOptimizerTests(unittest.TestCase, OptimizerTests):
 
     def setUp(self):
-        grid = ParameterGrid([[0.5, 1.5, 0.1], [0.5, 1.5, 0.1]])
+        grid = ParameterGrid([[0, 1.5, 0.1], [0, 1.5, 0.1]])
         self.optimizers = [GridSearchOptimizer(grid)]
 
 

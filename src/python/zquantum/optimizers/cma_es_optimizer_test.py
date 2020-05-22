@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 from zquantum.core.interfaces.optimizer_test import OptimizerTests, rosen
+from zquantum.core.interfaces.mock_objects import MockCostFunction
 from .cma_es_optimizer import CMAESOptimizer
 
 class CMAESOptimizerTests(unittest.TestCase, OptimizerTests):
@@ -13,7 +14,8 @@ class CMAESOptimizerTests(unittest.TestCase, OptimizerTests):
         self.assertRaises(TypeError, lambda: CMAESOptimizer())
 
     def test_cmaes_specific_fields(self):
-        results = CMAESOptimizer(options={"sigma_0": 0.1, "maxfevals": 99, "popsize": 5}).minimize(rosen, initial_params=[0, 0])
+        cost_function = MockCostFunction()
+        results = CMAESOptimizer(options={"sigma_0": 0.1, "maxfevals": 99, "popsize": 5}).minimize(cost_function, initial_params=[0, 0])
 
         self.assertIn("cma_xfavorite", results.keys())
         self.assertIsInstance(results["cma_xfavorite"], list)
