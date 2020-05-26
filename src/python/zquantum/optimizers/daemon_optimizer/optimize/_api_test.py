@@ -24,7 +24,9 @@ class TestOptimizationServer(unittest.TestCase):
         # Then
         self.assertEqual(opt_results['opt_value'], 0)
         self.assertEqual(len(opt_results['opt_params']), 2)
-        self.assertEqual(opt_results['history'], [{'optimization-evaluation-ids': ['MOCKED-ID']}])
+        self.assertEqual(opt_results['history'][0]['optimization-evaluation-ids'], ['MOCKED-ID'])
+        self.assertIn('value', opt_results['history'][0].keys())
+        self.assertIn('params', opt_results['history'][0].keys())
 
     def test_optimize_variational_circuit_with_proxy_x_squared(self):
         # Given
@@ -37,7 +39,9 @@ class TestOptimizationServer(unittest.TestCase):
         # Then
         self.assertGreater(opt_results['opt_value'], 0)
         self.assertEqual(len(opt_results['opt_params']), 1)
-        self.assertEqual(opt_results['history'], [{'optimization-evaluation-ids': ['MOCKED-ID']}])
+        self.assertEqual(opt_results['history'][0]['optimization-evaluation-ids'], ['MOCKED-ID'])
+        self.assertIn('value', opt_results['history'][0].keys())
+        self.assertIn('params', opt_results['history'][0].keys())
 
     def test_optimize_variational_circuit_with_proxy_errors(self):
         client = MockedClient(self.ipaddress, self.port)

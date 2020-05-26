@@ -35,6 +35,7 @@ class GridSearchOptimizer(Optimizer):
         history = []
         min_value = None
         nfev = 0
+        
         for params in self.grid.params_list:
             value = cost_function.evaluate(params)
             if self.options["keep_value_history"]:
