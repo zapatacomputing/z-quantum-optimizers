@@ -30,7 +30,7 @@ class CMAESOptimizer(Optimizer):
         def wrapped_cost_function(params):
 
             value = cost_function.evaluate(params)
-            history.append({'params': params, 'value': value})
+            history.append(cost_function.evaluations_history[-1])
             print(f'Function evaluation {len(history)}: {value}', flush=True)
             print(f'{params}', flush=True)
 
