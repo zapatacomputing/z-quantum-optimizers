@@ -1,15 +1,22 @@
 import unittest
-import numpy as np
+import numpy as np 
+import os
+from zquantum.core.interfaces.cost_function_test import CostFunctionTests
+
 from .cost_function import ProxyCostFunction
 from .client_mock import MockedClient
-import os
 
 
-class TestProxyCostFunction(unittest.TestCase):
+class TestProxyCostFunction(unittest.TestCase, CostFunctionTests):
 
     def setUp(self):
         self.port = "1234"
         self.ipaddress = "testing-ip"
+
+        client = MockedClient(self.ipaddress, self.port, "return_x_squared")
+        self.cost_functions = [ProxyCostFunction(client)]
+        self.params_sizes = [4]
+
 
     def test_evaluate(self):
         # Given
@@ -42,7 +49,7 @@ class TestProxyCostFunction(unittest.TestCase):
         # Then
         self.assertEqual(value_1, target_value)
         self.assertEqual(value_2, target_value)
-        self.assertEqual(len(history), 2)
+        self.assertEqual(len(history), 1)
         self.assertEqual(history[0]['optimization-evaluation-ids'], ['MOCKED-ID', 'MOCKED-ID', 'MOCKED-ID'])
         np.testing.assert_array_equal(history[0]['params'], params)
         self.assertEqual(history[0]['value'], target_value)

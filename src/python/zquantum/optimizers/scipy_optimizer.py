@@ -28,7 +28,7 @@ class ScipyOptimizer(Optimizer):
         def default_callback(params):
             history.append({'params': params})
             if self.options["keep_value_history"]:
-                value = cost_function(params)
+                value = cost_function.evaluate(params)
                 history[-1]['value'] = value
                 print(f'Iteration {len(history)}: {value}', flush=True)
             else:

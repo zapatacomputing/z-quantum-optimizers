@@ -11,7 +11,8 @@ class MockedClient:
         return 0
 
     def return_x_squared(self):
-        return load_circuit_template_params(io.StringIO(self.parameters))[0]**2
+        params = load_circuit_template_params(io.StringIO(self.parameters))
+        return sum(params**2)
 
 
     def __init__(self, ip, port, cost_func="return_zero", parameters=None):
