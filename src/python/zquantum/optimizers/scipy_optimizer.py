@@ -45,6 +45,7 @@ class ScipyOptimizer(Optimizer):
                                         options=self.options,
                                         constraints=self.constraints,
                                         callback=callback)
+                                        jac=cost_function.get_gradient)
 
         result.opt_value = result.fun
         del result['fun']
