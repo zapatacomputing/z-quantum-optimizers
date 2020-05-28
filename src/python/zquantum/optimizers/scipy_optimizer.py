@@ -8,6 +8,8 @@ class ScipyOptimizer(Optimizer):
         self.options = options
         if constraints is None:
             self.constraints = []
+        else:
+            self.constraints = constraints
         if "keep_value_history" not in self.options.keys():
             self.options["keep_value_history"] = False
 
@@ -37,7 +39,6 @@ class ScipyOptimizer(Optimizer):
         
         if callback is None:
             callback = default_callback
-
         result = scipy.optimize.minimize(cost_function.evaluate,
                                         initial_params,
                                         method=self.method,
