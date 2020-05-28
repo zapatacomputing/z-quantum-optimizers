@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from zquantum.core.interfaces.optimizer_test import OptimizerTests, rosen
+from zquantum.core.interfaces.optimizer_test import OptimizerTests
 from zquantum.core.interfaces.mock_objects import MockCostFunction
 from .cma_es_optimizer import CMAESOptimizer
 

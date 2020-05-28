@@ -3,9 +3,13 @@ import scipy
 
 class ScipyOptimizer(Optimizer):
 
-    def __init__(self, method, options={}):
+    def __init__(self, method, constraints=None, options={}):
         self.method = method
         self.options = options
+        if constraints is None:
+            self.constraints = []
+        else:
+            self.constraints = constraints
         if "keep_value_history" not in self.options.keys():
             self.options["keep_value_history"] = False
 
@@ -35,16 +39,18 @@ class ScipyOptimizer(Optimizer):
         
         if callback is None:
             callback = default_callback
-
         result = scipy.optimize.minimize(cost_function.evaluate,
                                         initial_params,
                                         method=self.method,
                                         options=self.options,
+                                        constraints=self.constraints,
                                         callback=callback,
                                         jac=cost_function.get_gradient)
 
         result.opt_value = result.fun
+        del result['fun']
         result.opt_params = result.x
+        del result['x']
         result.history = history
         if 'hess_inv' in result.keys():
             del result['hess_inv']

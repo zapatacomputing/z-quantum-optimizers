@@ -12,11 +12,14 @@ spec:
       - name: ansatz
         path: /app/ansatz.json
       - name: initial-parameters
-        path: /app/initial-parameters.json
+        path: /app/initial_parameters.json
       - name: qubit-operator
         path: /app/qubitop.json
       - name: parameter-grid
         path: /app/parameter_grid.json
+        optional: True
+      - name: constraint-operator
+        path: /app/constraint_operator.json
         optional: True
       - name: main-script
         path: /app/main_script.sh
@@ -40,8 +43,8 @@ spec:
 
             ansatz = load_circuit_template('ansatz.json')
 
-            if os.path.isfile('initial-parameters.json'):
-              initial_parameters = load_circuit_template_params('initial-parameters.json')
+            if os.path.isfile('initial_parameters.json'):
+              initial_parameters = load_circuit_template_params('initial_parameters.json')
             else:
               initial_parameters = None
 
@@ -61,8 +64,13 @@ spec:
             
             backend_specs = {{inputs.parameters.backend-specs}}
             backend = create_object(backend_specs)
-            
+
             cost_function = EvaluateOperatorCostFunction(operator, ansatz, backend)
+            if os.path.isfile('constraint_operator.json'):
+              constraint_operator = load_qubit_operator('constraint_operator.json')
+              constraint_cost_function = EvaluateOperatorCostFunction(constraint_operator, ansatz, backend)
+              constraint_functions = ({'type': 'eq', 'fun': constraint_cost_function.evaluate},)
+              optimizer.constraints = constraint_functions
 
             opt_results = optimizer.minimize(cost_function, initial_parameters)
 
