@@ -44,7 +44,7 @@ class ScipyOptimizer(Optimizer):
                                         method=self.method,
                                         options=self.options,
                                         constraints=self.constraints,
-                                        callback=callback)
+                                        callback=callback,
                                         jac=cost_function.get_gradient)
 
         result.opt_value = result.fun

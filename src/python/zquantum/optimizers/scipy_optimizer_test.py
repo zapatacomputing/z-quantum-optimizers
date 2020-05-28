@@ -16,7 +16,7 @@ class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
 
     def test_SLSQP_with_equality_constraints(self):
         # Given
-        cost_function = BasicCostFunction(rosenbrock_function)
+        cost_function = BasicCostFunction(rosenbrock_function, gradient_type='finite_difference')
         constraint_cost_function = BasicCostFunction(sum_x_squared)
         constraints = ({'type': 'eq', 'fun': constraint_cost_function.evaluate},)
         optimizer = ScipyOptimizer(method="SLSQP", constraints=constraints)
@@ -33,7 +33,7 @@ class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
 
     def test_SLSQP_with_inequality_constraints(self):
         # Given
-        cost_function = BasicCostFunction(rosenbrock_function)
+        cost_function = BasicCostFunction(rosenbrock_function, gradient_type='finite_difference')
         constraints = ({'type': 'ineq', 'fun': lambda x:  x[0] + x[1] - 3})
         optimizer = ScipyOptimizer(method="SLSQP")
         initial_params = np.array([0, 0])
