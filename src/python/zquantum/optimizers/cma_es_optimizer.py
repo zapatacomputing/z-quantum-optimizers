@@ -3,18 +3,34 @@ from scipy.optimize import OptimizeResult
 import cma
 import copy
 
-class CMAESOptimizer(Optimizer):
 
+class CMAESOptimizer(Optimizer):
     def __init__(self, options):
+        """
+        Args:
+            options(dict): dictionary with options for the optimizer.
+
+        Supported values for the options dictionary:
+        Options:
+            sigma_0(float): initial standard deviation. Required option
+            keep_value_history(bool): boolean flag indicating whether the history of evaluations should be stored or not.
+            **kwargs: other options, please refer to https://github.com/CMA-ES/pycma documentation.
+            
+        """
+
         if "sigma_0" not in options.keys():
-            raise RuntimeError("Error: CMAESOptimizer input options dictionary must contain \"sigma_0\" field")
+            raise RuntimeError(
+                'Error: CMAESOptimizer input options dictionary must contain "sigma_0" field'
+            )
         else:
-            self.sigma_0 = options.pop('sigma_0')
+            self.sigma_0 = options.pop("sigma_0")
         self.options = options
 
         if "keep_value_history" in self.options.keys():
             del self.options["keep_value_history"]
-            Warning("CMA-ES always keeps track of the history, regardless of the keep_value_history flag.")
+            Warning(
+                "CMA-ES always keeps track of the history, regardless of the keep_value_history flag."
+            )
 
     def minimize(self, cost_function, initial_params):
         """Minimize using the Covariance Matrix Adaptation Evolution Strategy
@@ -35,19 +51,19 @@ class CMAESOptimizer(Optimizer):
         def wrapped_cost_function(params):
             value = cost_function.evaluate(params)
             history.append(cost_function.evaluations_history[-1])
-            print(f'Function evaluation {len(history)}: {value}', flush=True)
-            print(f'{params}', flush=True)
+            print(f"Function evaluation {len(history)}: {value}", flush=True)
+            print(f"{params}", flush=True)
             return value
 
         strategy = cma.CMAEvolutionStrategy(initial_params, self.sigma_0, self.options)
         result = strategy.optimize(wrapped_cost_function).result
 
         optimization_results = {}
-        optimization_results['opt_value'] = result.fbest
-        optimization_results['opt_params'] = result.xbest
-        optimization_results['history'] = history
-        optimization_results['nfev'] = result.evaluations
-        optimization_results['nit'] = result.iterations
-        optimization_results['cma_xfavorite'] = list(result.xfavorite)
+        optimization_results["opt_value"] = result.fbest
+        optimization_results["opt_params"] = result.xbest
+        optimization_results["history"] = history
+        optimization_results["nfev"] = result.evaluations
+        optimization_results["nit"] = result.iterations
+        optimization_results["cma_xfavorite"] = list(result.xfavorite)
 
         return OptimizeResult(optimization_results)

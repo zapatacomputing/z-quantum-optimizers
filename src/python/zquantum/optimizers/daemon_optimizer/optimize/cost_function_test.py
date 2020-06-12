@@ -1,5 +1,5 @@
 import unittest
-import numpy as np 
+import numpy as np
 import os
 from zquantum.core.interfaces.cost_function_test import CostFunctionTests
 
@@ -8,7 +8,6 @@ from .client_mock import MockedClient
 
 
 class TestProxyCostFunction(unittest.TestCase, CostFunctionTests):
-
     def setUp(self):
         self.port = "1234"
         self.ipaddress = "testing-ip"
@@ -16,7 +15,6 @@ class TestProxyCostFunction(unittest.TestCase, CostFunctionTests):
         client = MockedClient(self.ipaddress, self.port, "return_x_squared")
         self.cost_functions = [ProxyCostFunction(client)]
         self.params_sizes = [4]
-
 
     def test_evaluate(self):
         # Given
@@ -30,8 +28,8 @@ class TestProxyCostFunction(unittest.TestCase, CostFunctionTests):
 
         # Then
         self.assertEqual(value, target_value)
-        os.remove('client_mock_evaluation_result.json')
-        os.remove('current_optimization_params.json')
+        os.remove("client_mock_evaluation_result.json")
+        os.remove("current_optimization_params.json")
 
     def test_callback(self):
         # Given
@@ -50,8 +48,11 @@ class TestProxyCostFunction(unittest.TestCase, CostFunctionTests):
         self.assertEqual(value_1, target_value)
         self.assertEqual(value_2, target_value)
         self.assertEqual(len(history), 1)
-        self.assertEqual(history[0]['optimization-evaluation-ids'], ['MOCKED-ID', 'MOCKED-ID', 'MOCKED-ID'])
-        np.testing.assert_array_equal(history[0]['params'], params)
-        self.assertEqual(history[0]['value'], target_value)
-        os.remove('client_mock_evaluation_result.json')
-        os.remove('current_optimization_params.json')
+        self.assertEqual(
+            history[0]["optimization-evaluation-ids"],
+            ["MOCKED-ID", "MOCKED-ID", "MOCKED-ID"],
+        )
+        np.testing.assert_array_equal(history[0]["params"], params)
+        self.assertEqual(history[0]["value"], target_value)
+        os.remove("client_mock_evaluation_result.json")
+        os.remove("current_optimization_params.json")

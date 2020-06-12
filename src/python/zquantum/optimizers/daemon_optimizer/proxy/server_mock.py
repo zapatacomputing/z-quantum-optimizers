@@ -7,6 +7,7 @@ from threading import Thread
 
 import uuid
 
+
 class MockServer(Thread):
     def __init__(self, port=5000):
         super().__init__()
@@ -18,17 +19,20 @@ class MockServer(Thread):
 
     def _shutdown_server(self):
         from flask import request
-        if not 'werkzeug.server.shutdown' in request.environ:
-            raise RuntimeError('Not running the development server')
-        request.environ['werkzeug.server.shutdown']()
-        return 'Server shutting down...'
+
+        if not "werkzeug.server.shutdown" in request.environ:
+            raise RuntimeError("Not running the development server")
+        request.environ["werkzeug.server.shutdown"]()
+        return "Server shutting down..."
 
     def shutdown_server(self):
         requests.get("http://localhost:%s/shutdown" % self.port)
         self.join()
 
-    def add_callback_response(self, url, callback, methods=('GET',)):
-        callback.__name__ = str(uuid.uuid4())  # change name of method to mitigate flask exception
+    def add_callback_response(self, url, callback, methods=("GET",)):
+        callback.__name__ = str(
+            uuid.uuid4()
+        )  # change name of method to mitigate flask exception
         self.app.add_url_rule(url, view_func=callback, methods=methods)
 
     def run(self):
