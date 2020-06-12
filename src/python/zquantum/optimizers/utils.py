@@ -1,8 +1,13 @@
-from zquantum.core.utils import convert_dict_to_array, convert_array_to_dict, SCHEMA_VERSION
+from zquantum.core.utils import (
+    convert_dict_to_array,
+    convert_array_to_dict,
+    SCHEMA_VERSION,
+)
 from scipy.optimize import OptimizeResult
 import json
 import warnings
 import numpy as np
+
 
 def validate_optimization_results(optimization_results):
     """
@@ -17,11 +22,16 @@ def validate_optimization_results(optimization_results):
     recommended_fields = ["nfev", "nit"]
     for field in required_fields:
         if field not in optimization_results.keys():
-            raise Exception("Required field " + field + " not present in optimization results")
+            raise Exception(
+                "Required field " + field + " not present in optimization results"
+            )
 
     for field in recommended_fields:
         if field not in optimization_results.keys():
-            warnings.warn("Recommended field " + field + " not present in optimization results", Warning)
+            warnings.warn(
+                "Recommended field " + field + " not present in optimization results",
+                Warning,
+            )
 
 
 def load_optimization_results(file):
@@ -35,21 +45,25 @@ def load_optimization_results(file):
     """
 
     if isinstance(file, str):
-        with open(file, 'r') as f:
+        with open(file, "r") as f:
             data = json.load(f)
     else:
         data = json.load(file)
 
     optimization_results = {}
     for key in data:
-        if key != 'history':
+        if key != "history":
             optimization_results[key] = data[key]
 
-    if data.get('history'):
-        optimization_results['history'] = []
-        for step in data['history']:
-            optimization_results['history'].append(
-                {'value': step['value'], 'params': convert_dict_to_array(step['params'])})
+    if data.get("history"):
+        optimization_results["history"] = []
+        for step in data["history"]:
+            optimization_results["history"].append(
+                {
+                    "value": step["value"],
+                    "params": convert_dict_to_array(step["params"]),
+                }
+            )
 
     return OptimizeResult(optimization_results)
 
@@ -61,10 +75,10 @@ def save_optimization_results(optimization_results, filename):
         filename (str): the name of the file
     """
     data = {}
-    data['schema'] = SCHEMA_VERSION + '-optimization_result'
-    
+    data["schema"] = SCHEMA_VERSION + "-optimization_result"
+
     for key in optimization_results:
-        if key != 'history':
+        if key != "history":
             if type(optimization_results[key]) == np.ndarray:
                 data[key] = optimization_results[key].tolist()
             elif type(optimization_results[key]) == bytes:
@@ -74,23 +88,31 @@ def save_optimization_results(optimization_results, filename):
             else:
                 data[key] = optimization_results[key]
 
-    if optimization_results.get('history'):
-        data['history'] = []
-        for step in optimization_results['history']:
-            if 'optimization-evaluation-ids' in step.keys():
-                evaluation = {'value': step.get('value'),
-                                        'params': convert_array_to_dict(step['params']),
-                                        'optimization-evaluation-ids': step['optimization-evaluation-ids']}
-                if 'bitstring_distribution' in step.keys():
-                    evaluation['bitstring_distribution'] = step['bitstring_distribution']
+    if optimization_results.get("history"):
+        data["history"] = []
+        for step in optimization_results["history"]:
+            if "optimization-evaluation-ids" in step.keys():
+                evaluation = {
+                    "value": step.get("value"),
+                    "params": convert_array_to_dict(step["params"]),
+                    "optimization-evaluation-ids": step["optimization-evaluation-ids"],
+                }
+                if "bitstring_distribution" in step.keys():
+                    evaluation["bitstring_distribution"] = step[
+                        "bitstring_distribution"
+                    ]
 
-                data['history'].append(evaluation)
+                data["history"].append(evaluation)
             else:
-                evaluation = {'value': step.get('value'),
-                                        'params': convert_array_to_dict(step['params'])}
-                if 'bitstring_distribution' in step.keys():
-                    evaluation['bitstring_distribution'] = step['bitstring_distribution']
-                data['history'].append(evaluation)
+                evaluation = {
+                    "value": step.get("value"),
+                    "params": convert_array_to_dict(step["params"]),
+                }
+                if "bitstring_distribution" in step.keys():
+                    evaluation["bitstring_distribution"] = step[
+                        "bitstring_distribution"
+                    ]
+                data["history"].append(evaluation)
 
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         f.write(json.dumps(data, indent=2))

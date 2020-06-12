@@ -5,15 +5,14 @@ import random
 import json
 import io
 
-class MockedClient:
 
+class MockedClient:
     def return_zero(self):
         return 0
 
     def return_x_squared(self):
         params = load_circuit_template_params(io.StringIO(self.parameters))
-        return sum(params**2)
-
+        return sum(params ** 2)
 
     def __init__(self, ip, port, cost_func="return_zero", parameters=None):
         self.connection = "mocked connection"
@@ -30,38 +29,31 @@ class MockedClient:
     def get_status(self):
         return random.choice(["EVALUATING", "OPTIMIZING"])
 
-
     def post_status(self, status):
         pass
 
-
     def get_argument_values(self):
         return self.parameters
-
 
     def post_argument_values(self, argument_values):
         self.parameters = argument_values
         return "MOCKED-ID"
 
-
     def get_evaluation_result(self, id):
         # make cost function result
         result = ValueEstimate(self.cost_func())
-        save_value_estimate(result, 'client_mock_evaluation_result.json')
-        with open('client_mock_evaluation_result.json', 'r') as f:
+        save_value_estimate(result, "client_mock_evaluation_result.json")
+        with open("client_mock_evaluation_result.json", "r") as f:
             result_data = json.load(f)
         result_data["optimization-evaluation-id"] = "MOCKED-ID"
         return json.JSONEncoder().encode(result_data)
 
-
     def post_evaluation_result(self, evaluation_result):
         pass
-
 
     # Not Implemented
     def start_evaluation(self):
         pass
-
 
     # Not Implemented
     def finish_evaluation(self, evaluation_result):
