@@ -1,11 +1,17 @@
 from zquantum.core.circuit import save_circuit_template_params
-from zquantum.core.utils import load_value_estimate, convert_array_to_dict, SCHEMA_VERSION
+from zquantum.core.utils import (
+    load_value_estimate,
+    convert_array_to_dict,
+    SCHEMA_VERSION,
+)
 from .cost_function import ProxyCostFunction
 import scipy
 import json
 
 # ---------- Optimize Variational Circuit ----------
-def optimize_variational_circuit_with_proxy(initial_params, optimizer, client, **kwargs):
+def optimize_variational_circuit_with_proxy(
+    initial_params, optimizer, client, **kwargs
+):
     """Optimizes a variational circuit using proxy architecture.
     
     Arguments:
@@ -31,25 +37,25 @@ def optimize_variational_circuit_with_proxy(initial_params, optimizer, client, *
     """
     # Define cost function that interacts with client
     cost_function = ProxyCostFunction(client)
-    
+
     # POST status to OPTIMIZING
     client.post_status("OPTIMIZING")
-    
-    # Perform the minimization
-    opt_results = optimizer.minimize(cost_function,
-                                     initial_params,
-                                     callback=cost_function.callback)
-    
-    # Update opt_results object
-    # TODO: this is done temporarily to ensure no data is lost. However, storing history 
-    # should be handled by optimizer, not cost_function.
-    opt_results['history'] = cost_function.evaluations_history
 
-    # Since a new history element is added in the callback function, if there is 
+    # Perform the minimization
+    opt_results = optimizer.minimize(
+        cost_function, initial_params, callback=cost_function.callback
+    )
+
+    # Update opt_results object
+    # TODO: this is done temporarily to ensure no data is lost. However, storing history
+    # should be handled by optimizer, not cost_function.
+    opt_results["history"] = cost_function.evaluations_history
+
+    # Since a new history element is added in the callback function, if there is
     #   at least one iteration, there is an empty history element at the end
     #   that must be removed
-    if 'nit' in opt_results.keys() and opt_results.nit > 0:
-        del opt_results['history'][-1]
+    if "nit" in opt_results.keys() and opt_results.nit > 0:
+        del opt_results["history"][-1]
 
     # POST status to DONE
     client.post_status("DONE")

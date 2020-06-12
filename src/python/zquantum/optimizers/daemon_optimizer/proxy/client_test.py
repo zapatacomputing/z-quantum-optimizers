@@ -9,8 +9,8 @@ import random
 import unittest
 from werkzeug.wrappers import Response
 
-class TestOptimizationServer(unittest.TestCase):
 
+class TestOptimizationServer(unittest.TestCase):
     def setUp(self):
         self.port = 8080
         self.ipaddress = "localhost"
@@ -26,11 +26,13 @@ class TestOptimizationServer(unittest.TestCase):
 
     def test_get_status(self):
         status = "OPTIMIZING"
+
         def callback():
             response = Response(status)
             response.status_code = 200
             return response
-        self.server.add_callback_response('/status', callback)
+
+        self.server.add_callback_response("/status", callback)
 
         returned_status = self.client.get_status()
 
@@ -47,7 +49,7 @@ class TestOptimizationServer(unittest.TestCase):
                 response.status_code = random.choice(self.possible_status_codes)
             return response
 
-        self.server.add_callback_response('/status', callback)
+        self.server.add_callback_response("/status", callback)
 
         # check that raises runtime error
         self.assertRaises(RuntimeError, lambda: self.client.get_status())
@@ -58,7 +60,7 @@ class TestOptimizationServer(unittest.TestCase):
             response.status_code = 204
             return response
 
-        self.server.add_callback_response('/status', callback, methods=('POST',))
+        self.server.add_callback_response("/status", callback, methods=("POST",))
 
         # Function call should not fail, but has no returns
         try:
@@ -76,18 +78,20 @@ class TestOptimizationServer(unittest.TestCase):
                 response.status_code = random.choice(self.possible_status_codes)
             return response
 
-        self.server.add_callback_response('/status', callback, methods=('POST',))
+        self.server.add_callback_response("/status", callback, methods=("POST",))
 
         # check that raises runtime error
         self.assertRaises(RuntimeError, lambda: self.client.post_status("OPTIMIZING"))
 
     def test_get_argument_values(self):
-        argument_values_string = json.JSONEncoder().encode({'argval1': 'hello'})
+        argument_values_string = json.JSONEncoder().encode({"argval1": "hello"})
+
         def callback():
             response = Response(argument_values_string)
             response.status_code = 200
             return response
-        self.server.add_callback_response('/cost-function-argument-values', callback)
+
+        self.server.add_callback_response("/cost-function-argument-values", callback)
 
         returned_argument_values_string = self.client.get_argument_values()
 
@@ -103,20 +107,25 @@ class TestOptimizationServer(unittest.TestCase):
             while response.status_code == 200:
                 response.status_code = random.choice(self.possible_status_codes)
             return response
-        self.server.add_callback_response('/cost-function-argument-values', callback)
+
+        self.server.add_callback_response("/cost-function-argument-values", callback)
 
         # check that raises runtime error
         self.assertRaises(RuntimeError, lambda: self.client.get_argument_values())
 
     def test_post_argument_values(self):
         id = "this is a test id"
+
         def callback():
             response = Response(id)
             response.status_code = 200
             return response
-        self.server.add_callback_response('/cost-function-argument-values', callback, methods=('POST',))
 
-        argument_values_string = json.JSONEncoder().encode({'argval1': 'hello'})
+        self.server.add_callback_response(
+            "/cost-function-argument-values", callback, methods=("POST",)
+        )
+
+        argument_values_string = json.JSONEncoder().encode({"argval1": "hello"})
 
         returned_id = self.client.post_argument_values(argument_values_string)
 
@@ -132,24 +141,33 @@ class TestOptimizationServer(unittest.TestCase):
             while response.status_code == 200:
                 response.status_code = random.choice(self.possible_status_codes)
             return response
-            
-        self.server.add_callback_response('/cost-function-argument-values', callback, methods=('POST',))
 
-        argument_values_string = json.JSONEncoder().encode({'argval1': 'hello'})
+        self.server.add_callback_response(
+            "/cost-function-argument-values", callback, methods=("POST",)
+        )
+
+        argument_values_string = json.JSONEncoder().encode({"argval1": "hello"})
 
         # check that raises runtime error
-        self.assertRaises(RuntimeError, lambda: self.client.post_argument_values(argument_values_string))
+        self.assertRaises(
+            RuntimeError,
+            lambda: self.client.post_argument_values(argument_values_string),
+        )
 
     def test_get_evaluation_result(self):
         id = "this is a test id"
-        evaluation_result_string = json.JSONEncoder().encode({'evres1': 'hello', 'optimization-evaluation-id': id})
+        evaluation_result_string = json.JSONEncoder().encode(
+            {"evres1": "hello", "optimization-evaluation-id": id}
+        )
 
         def callback():
             response = Response(evaluation_result_string)
             response.status_code = 200
             return response
 
-        self.server.add_callback_response('/cost-function-results', callback, methods=('GET',))
+        self.server.add_callback_response(
+            "/cost-function-results", callback, methods=("GET",)
+        )
 
         returned_evaluation_result_string = self.client.get_evaluation_result(id)
 
@@ -165,8 +183,10 @@ class TestOptimizationServer(unittest.TestCase):
             while response.status_code == 200:
                 response.status_code = random.choice(self.possible_status_codes)
             return response
-            
-        self.server.add_callback_response('/cost-function-results', callback, methods=('GET',))
+
+        self.server.add_callback_response(
+            "/cost-function-results", callback, methods=("GET",)
+        )
 
         id = "this is a test id"
 
@@ -179,11 +199,15 @@ class TestOptimizationServer(unittest.TestCase):
             response.status_code = 204
             return response
 
-        self.server.add_callback_response('/cost-function-results', callback, methods=('POST',))
+        self.server.add_callback_response(
+            "/cost-function-results", callback, methods=("POST",)
+        )
 
         id = "this is a test id"
-        evaluation_result_string = json.JSONEncoder().encode({'evres1': 'hello', 'optimization-evaluation-id': id})
-        
+        evaluation_result_string = json.JSONEncoder().encode(
+            {"evres1": "hello", "optimization-evaluation-id": id}
+        )
+
         # Function call should not fail, but has no returns
         try:
             self.client.post_evaluation_result(evaluation_result_string)
@@ -199,14 +223,21 @@ class TestOptimizationServer(unittest.TestCase):
             while response.status_code == 204:
                 response.status_code = random.choice(self.possible_status_codes)
             return response
-            
-        self.server.add_callback_response('/cost-function-results', callback, methods=('POST',))
+
+        self.server.add_callback_response(
+            "/cost-function-results", callback, methods=("POST",)
+        )
 
         id = "this is a test id"
-        evaluation_result_string = json.JSONEncoder().encode({'evres1': 'hello', 'optimization-evaluation-id': id})
-        
+        evaluation_result_string = json.JSONEncoder().encode(
+            {"evres1": "hello", "optimization-evaluation-id": id}
+        )
+
         # check that raises runtime error
-        self.assertRaises(RuntimeError, lambda: self.client.post_evaluation_result(evaluation_result_string))
+        self.assertRaises(
+            RuntimeError,
+            lambda: self.client.post_evaluation_result(evaluation_result_string),
+        )
 
     def test_start_evaluation(self):
         id = "this is a test id"
@@ -216,15 +247,20 @@ class TestOptimizationServer(unittest.TestCase):
             response.status_code = 200
             return response
 
-        self.server.add_callback_response('/status', get_status_callback)
+        self.server.add_callback_response("/status", get_status_callback)
 
-        argument_values_string = json.JSONEncoder().encode({'argval1': 'hello', 'optimization-evaluation-id': id})
+        argument_values_string = json.JSONEncoder().encode(
+            {"argval1": "hello", "optimization-evaluation-id": id}
+        )
+
         def get_argument_values_callback():
             response = Response(argument_values_string)
             response.status_code = 200
             return response
-        
-        self.server.add_callback_response('/cost-function-argument-values', get_argument_values_callback)
+
+        self.server.add_callback_response(
+            "/cost-function-argument-values", get_argument_values_callback
+        )
 
         returned_argument_values_string, returned_id = self.client.start_evaluation()
         self.assertEqual(returned_argument_values_string, argument_values_string)
@@ -236,14 +272,16 @@ class TestOptimizationServer(unittest.TestCase):
             response.status_code = 200
             return response
 
-        self.server.add_callback_response('/status', get_status_callback)
+        self.server.add_callback_response("/status", get_status_callback)
 
         def get_argument_values_callback():
             response = Response(123)
             response.status_code = 200
             return response
-        
-        self.server.add_callback_response('/cost-function-argument-values', get_argument_values_callback)
+
+        self.server.add_callback_response(
+            "/cost-function-argument-values", get_argument_values_callback
+        )
 
         self.assertRaises(RuntimeError, lambda: self.client.start_evaluation())
 
@@ -253,15 +291,18 @@ class TestOptimizationServer(unittest.TestCase):
             response.status_code = 200
             return response
 
-        self.server.add_callback_response('/status', get_status_callback)
+        self.server.add_callback_response("/status", get_status_callback)
 
-        argument_values_string = json.JSONEncoder().encode({'argval1': 'hello'})
+        argument_values_string = json.JSONEncoder().encode({"argval1": "hello"})
+
         def get_argument_values_callback():
             response = Response(argument_values_string)
             response.status_code = 200
             return response
-        
-        self.server.add_callback_response('/cost-function-argument-values', get_argument_values_callback)
+
+        self.server.add_callback_response(
+            "/cost-function-argument-values", get_argument_values_callback
+        )
 
         self.assertRaises(RuntimeError, lambda: self.client.start_evaluation())
 
@@ -273,16 +314,22 @@ class TestOptimizationServer(unittest.TestCase):
             response.status_code = 204
             return response
 
-        self.server.add_callback_response('/status', post_status_callback, methods=('POST',))
+        self.server.add_callback_response(
+            "/status", post_status_callback, methods=("POST",)
+        )
 
         def post_evaluation_result_callback():
             response = Response()
             response.status_code = 204
             return response
 
-        self.server.add_callback_response('/cost-function-results', post_evaluation_result_callback, methods=('POST',))
+        self.server.add_callback_response(
+            "/cost-function-results", post_evaluation_result_callback, methods=("POST",)
+        )
 
-        evaluation_result_string = json.JSONEncoder().encode({'evres1': 'hello', 'optimization-evaluation-id': id})
+        evaluation_result_string = json.JSONEncoder().encode(
+            {"evres1": "hello", "optimization-evaluation-id": id}
+        )
 
         try:
             self.client.finish_evaluation(evaluation_result_string)
@@ -294,8 +341,9 @@ class TestOptimizationServer(unittest.TestCase):
 
         def is_port_in_use(port):
             import socket
+
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 return s.connect_ex((self.ipaddress, port)) == 0
 
-        while(is_port_in_use(self.port)):
+        while is_port_in_use(self.port):
             time.sleep(1)

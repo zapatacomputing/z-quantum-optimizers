@@ -4,6 +4,7 @@ from zquantum.core.circuit import save_circuit_template_params
 import time
 import io
 
+
 class ProxyCostFunction(CostFunction):
     """
     Implementation of CostFunction interface, which allows to use proxy as cost function.
@@ -17,7 +18,8 @@ class ProxyCostFunction(CostFunction):
         evaluations_history (list): List of the tuples (parameters, value) representing all the evaluation in a chronological order.
         save_evaluation_history (bool): see Args
     """
-    def __init__(self, client, save_evaluation_history=True, epsilon:float=1e-5):
+
+    def __init__(self, client, save_evaluation_history=True, epsilon: float = 1e-5):
         self.client = client
         self.save_evaluation_history = save_evaluation_history
         self.evaluations_history = []
@@ -49,8 +51,8 @@ class ProxyCostFunction(CostFunction):
             value: cost function value for given parameters, either int or float.
         """
         # Encode params to json string
-        save_circuit_template_params(parameters, 'current_optimization_params.json')
-        with open('current_optimization_params.json', 'r') as f:
+        save_circuit_template_params(parameters, "current_optimization_params.json")
+        with open("current_optimization_params.json", "r") as f:
             current_params_string = f.read()
 
         # POST params to proxy
@@ -70,10 +72,14 @@ class ProxyCostFunction(CostFunction):
         # SAVE ID to optimization result['history']
         if self.save_evaluation_history:
             if len(self.evaluations_history) < self.current_iteration + 1:
-                self.evaluations_history.append({'optimization-evaluation-ids': []})
-            self.evaluations_history[self.current_iteration]['optimization-evaluation-ids'].append(evaluation_id)
+                self.evaluations_history.append({"optimization-evaluation-ids": []})
+            self.evaluations_history[self.current_iteration][
+                "optimization-evaluation-ids"
+            ].append(evaluation_id)
             self.evaluations_history[self.current_iteration]["params"] = parameters
-            self.evaluations_history[self.current_iteration]["value"] =  value_estimate.value
+            self.evaluations_history[self.current_iteration][
+                "value"
+            ] = value_estimate.value
 
         return value_estimate.value
 
@@ -87,18 +93,24 @@ class ProxyCostFunction(CostFunction):
         Returns:
             None
         """
-        self.evaluations_history[self.current_iteration]['params'] = parameters
+        self.evaluations_history[self.current_iteration]["params"] = parameters
 
         print("\nFinsished Iteration: {}".format(self.current_iteration), flush=True)
         print("Current Parameters: {}".format(parameters), flush=True)
 
         # If getting the value history, perform an evaluation with current parameters
         if self.save_evaluation_history:
-            self.evaluations_history[self.current_iteration]['value'] = self.evaluate(parameters)
+            self.evaluations_history[self.current_iteration]["value"] = self.evaluate(
+                parameters
+            )
 
-            print("Current Value: {}".format(
-                self.evaluations_history[self.current_iteration]['value']), flush=True)
-        
+            print(
+                "Current Value: {}".format(
+                    self.evaluations_history[self.current_iteration]["value"]
+                ),
+                flush=True,
+            )
+
         print("Starting Next Iteration...", flush=True)
 
         # Update currrent_iteration index and add new blank history
