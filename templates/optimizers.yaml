@@ -84,7 +84,7 @@ spec:
                   constraint_functions = ({'type': 'eq', 'fun': constraint_cost_function.evaluate},)
                   optimizer.constraints = constraint_functions
 
-                cost_function = EvaluateOperatorCostFunction(operator, ansatz, backend, gradient_type="{{inputs.parameters.gradient-type}}")
+                cost_function = EvaluateOperatorCostFunction(operator, ansatz, backend)
                 if os.path.isfile('constraint_operator.json'):
                   constraint_operator = load_qubit_operator('constraint_operator.json')
                   constraint_cost_function = EvaluateOperatorCostFunction(constraint_operator, ansatz, backend)
