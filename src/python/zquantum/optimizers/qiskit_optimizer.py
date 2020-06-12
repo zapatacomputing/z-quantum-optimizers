@@ -41,11 +41,11 @@ class QiskitOptimizer(Optimizer):
         """
         history = []
 
-        if self.method == "AMSGRAD":
-            self.options["amsgrad"] = True
         if self.method == "SPSA":
             optimizer = SPSA(**self.options)
         elif self.method == "ADAM" or self.method == "AMSGRAD":
+            if self.method == "AMSGRAD":
+                self.options["amsgrad"] = True
             optimizer = ADAM(**self.options)
 
         def wrapped_(params):
