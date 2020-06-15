@@ -15,6 +15,12 @@ spec:
             path: /app/initial_parameters.json
           - name: qubit-operator
             path: /app/qubitop.json
+          - name: noise-model
+            path: /app/noise_model.json
+            optional: True
+          - name: device-connectivity
+            path: /app/device_connectivity.json
+            optional: True
           - name: parameter-grid
             path: /app/parameter_grid.json
             optional: True
@@ -36,9 +42,9 @@ spec:
                 import os
                 from zquantum.optimizers.utils import save_optimization_results
                 from zquantum.core.cost_function import EvaluateOperatorCostFunction
-                from zquantum.core.circuit import load_circuit_template, load_circuit_template_params, save_circuit_template_params, load_parameter_grid
+                from zquantum.core.circuit import load_circuit_template, load_circuit_template_params, save_circuit_template_params, load_parameter_grid, load_circuit_connectivity
                 from qeopenfermion import load_qubit_operator
-                from zquantum.core.utils import create_object
+                from zquantum.core.utils import create_object, load_noise_model
                 import json
 
                 ansatz = load_circuit_template('ansatz.json')
@@ -61,8 +67,14 @@ spec:
                   optimizer = create_object(optimizer_specs, grid=grid)
                 else:
                   optimizer = create_object(optimizer_specs)
-
+                  
                 backend_specs = {{inputs.parameters.backend-specs}}
+                if os.path.isfile('noise_model.json'):
+                  backend_specs["noise_model"] = load_noise_model("noise_model.json")
+                if os.path.isfile("device_connectivity.json"):
+                    backend_specs["device_connectivity"] = load_circuit_connectivity(
+                        "device_connectivity.json"
+                    )
                 backend = create_object(backend_specs)
 
                 cost_function = EvaluateOperatorCostFunction(operator, ansatz, backend)
@@ -76,9 +88,9 @@ spec:
 
                 save_optimization_results(opt_results, 'optimization-results.json')
                 save_circuit_template_params(opt_results.opt_params, 'optimized_parameters.json')
-      outputs:
-        artifacts:
-          - name: optimization-results
-            path: /app/optimization-results.json
-          - name: optimized-parameters
-            path: /app/optimized_parameters.json
+        outputs:
+          artifacts:
+            - name: optimization-results
+              path: /app/optimization-results.json
+            - name: optimized-parameters
+              path: /app/optimized_parameters.json
