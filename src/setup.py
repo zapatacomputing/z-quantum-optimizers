@@ -22,6 +22,7 @@ setuptools.setup(
     ),
     install_requires=[
         "z-quantum-core",
+        "qe-openfermion",
         "pytest>=5.3.5",
         "marshmallow>=3.4.0",
         "cma==2.7.0",
