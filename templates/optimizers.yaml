@@ -68,13 +68,13 @@ spec:
                     grid = load_parameter_grid("parameter_grid.json")
                 else:
                     grid = None
-                optimizer_specs = {{inputs.parameters.optimizer - specs}}
+                optimizer_specs = {{inputs.parameters.optimizer-specs}}
                 if grid is not None and optimizer_specs["function_name"] == "GridSearchOptimizer":
                     optimizer = create_object(optimizer_specs, grid=grid)
                 else:
                     optimizer = create_object(optimizer_specs)
 
-                backend_specs = {{inputs.parameters.backend - specs}}
+                backend_specs = {{inputs.parameters.backend-specs}}
                 if os.path.isfile("noise_model.json"):
                     backend_specs["noise_model"] = load_noise_model("noise_model.json")
                 if os.path.isfile("device_connectivity.json"):
@@ -83,7 +83,7 @@ spec:
                     )
                 backend = create_object(backend_specs)
 
-                cost_function_specs = {{inputs.parameters.cost - function - specs}}
+                cost_function_specs = {{inputs.parameters.cost-function-specs}}
                 cost_function_specs["target_operator"] = operator
                 cost_function_specs["ansatz"] = ansatz
                 cost_function_specs["backend"] = backend
