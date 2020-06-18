@@ -1,8 +1,19 @@
+import os
 from zquantum.core.utils import (
     convert_dict_to_array,
     convert_array_to_dict,
     SCHEMA_VERSION,
+    create_object,
+    load_noise_model,
 )
+from zquantum.core.circuit import (
+    load_circuit_template,
+    load_circuit_template_params,
+    save_circuit_template_params,
+    load_parameter_grid,
+    load_circuit_connectivity,
+)
+from qeopenfermion import load_qubit_operator
 from scipy.optimize import OptimizeResult
 import json
 import warnings
@@ -116,3 +127,51 @@ def save_optimization_results(optimization_results, filename):
 
     with open(filename, "w") as f:
         f.write(json.dumps(data, indent=2))
+
+
+def optimize_variatonal_circuit(optimizer_specs, backend_specs, cost_function_specs):
+    ansatz = load_circuit_template("ansatz.json")
+
+    if os.path.isfile("initial_parameters.json"):
+        initial_parameters = load_circuit_template_params("initial_parameters.json")
+    else:
+        initial_parameters = None
+
+    # Load qubit op
+    operator = load_qubit_operator("qubitop.json")
+
+    # Load parameter grid
+    if os.path.isfile("parameter_grid.json"):
+        grid = load_parameter_grid("parameter_grid.json")
+    else:
+        grid = None
+    if grid is not None and optimizer_specs["function_name"] == "GridSearchOptimizer":
+        optimizer = create_object(optimizer_specs, grid=grid)
+    else:
+        optimizer = create_object(optimizer_specs)
+
+    if os.path.isfile("noise_model.json"):
+        backend_specs["noise_model"] = load_noise_model("noise_model.json")
+    if os.path.isfile("device_connectivity.json"):
+        backend_specs["device_connectivity"] = load_circuit_connectivity(
+            "device_connectivity.json"
+        )
+    backend = create_object(backend_specs)
+
+    cost_function_specs["target_operator"] = operator
+    cost_function_specs["ansatz"] = ansatz
+    cost_function_specs["backend"] = backend
+    cost_function = create_object(cost_function_specs)
+    if os.path.isfile("constraint_operator.json"):
+        constraint_operator = load_qubit_operator("constraint_operator.json")
+        cost_function_specs["target_operator"] = constraint_operator
+        constraint_cost_function = create_object(cost_function_specs)
+        constraint_functions = (
+            {"type": "eq", "fun": constraint_cost_function.evaluate},
+        )
+        optimizer.constraints = constraint_functions
+
+    opt_results = optimizer.minimize(cost_function, initial_parameters)
+
+    save_optimization_results(opt_results, "optimization-results.json")
+    save_circuit_template_params(opt_results.opt_params, "optimized_parameters.json")
