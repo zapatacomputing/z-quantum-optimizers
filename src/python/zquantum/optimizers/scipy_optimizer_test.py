@@ -25,7 +25,10 @@ class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
             rosenbrock_function, gradient_type="finite_difference"
         )
         constraint_cost_function = BasicCostFunction(sum_x_squared)
-        constraints = ({"type": "eq", "fun": constraint_cost_function.evaluate},)
+        constraint_cost_function_wrapper = lambda params: constraint_cost_function.evaluate(
+            params
+        ).value
+        constraints = ({"type": "eq", "fun": constraint_cost_function_wrapper},)
         optimizer = ScipyOptimizer(method="SLSQP", constraints=constraints)
         initial_params = np.array([1, 1])
         target_params = np.array([0, 0])

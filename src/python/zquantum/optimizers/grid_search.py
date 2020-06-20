@@ -48,7 +48,7 @@ class GridSearchOptimizer(Optimizer):
         nfev = 0
 
         for params in self.grid.params_list:
-            value = cost_function.evaluate(params)
+            value = cost_function.evaluate(params).value
             if self.keep_value_history:
                 history.append({"params": params, "value": value})
             nfev += 1

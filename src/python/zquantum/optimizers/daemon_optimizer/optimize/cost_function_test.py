@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 import os
 from zquantum.core.interfaces.cost_function_test import CostFunctionTests
+from zquantum.core.utils import ValueEstimate
 
 from .cost_function import ProxyCostFunction
 from .client_mock import MockedClient
@@ -21,7 +22,7 @@ class TestProxyCostFunction(unittest.TestCase, CostFunctionTests):
         client = MockedClient(self.ipaddress, self.port, "return_x_squared")
         params = np.array([4])
         cost_function = ProxyCostFunction(client)
-        target_value = 16
+        target_value = ValueEstimate(16)
 
         # When
         value = cost_function.evaluate(params)
@@ -36,7 +37,7 @@ class TestProxyCostFunction(unittest.TestCase, CostFunctionTests):
         client = MockedClient(self.ipaddress, self.port, "return_x_squared")
         params = np.array([4])
         cost_function = ProxyCostFunction(client)
-        target_value = 16
+        target_value = ValueEstimate(16)
 
         # When
         value_1 = cost_function.evaluate(params)
