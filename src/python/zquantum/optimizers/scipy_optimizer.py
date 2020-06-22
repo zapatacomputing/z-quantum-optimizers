@@ -62,8 +62,9 @@ class ScipyOptimizer(Optimizer):
 
         if callback is None:
             callback = default_callback
+        cost_function_wrapper = lambda params: cost_function.evaluate(params).value
         result = scipy.optimize.minimize(
-            cost_function.evaluate,
+            cost_function_wrapper,
             initial_params,
             method=self.method,
             options=self.options,

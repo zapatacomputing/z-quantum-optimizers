@@ -1,5 +1,5 @@
 from zquantum.core.interfaces.cost_function import CostFunction
-from zquantum.core.utils import save_list, load_value_estimate
+from zquantum.core.utils import save_list, load_value_estimate, ValueEstimate
 from zquantum.core.circuit import save_circuit_template_params
 import time
 import io
@@ -27,7 +27,7 @@ class ProxyCostFunction(CostFunction):
         self.gradient_type = "finite_difference"
         self.epsilon = epsilon
 
-    def evaluate(self, parameters):
+    def evaluate(self, parameters) -> ValueEstimate:
         """
         Evaluates the value of the cost function for given parameters.
 
@@ -40,7 +40,7 @@ class ProxyCostFunction(CostFunction):
         value = self._evaluate(parameters)
         return value
 
-    def _evaluate(self, parameters):
+    def _evaluate(self, parameters) -> ValueEstimate:
         """
         Evaluates the value of the cost function for given parameters by communicating with client.
 
@@ -77,11 +77,9 @@ class ProxyCostFunction(CostFunction):
                 "optimization-evaluation-ids"
             ].append(evaluation_id)
             self.evaluations_history[self.current_iteration]["params"] = parameters
-            self.evaluations_history[self.current_iteration][
-                "value"
-            ] = value_estimate.value
+            self.evaluations_history[self.current_iteration]["value"] = value_estimate
 
-        return value_estimate.value
+        return value_estimate
 
     def callback(self, parameters):
         """
