@@ -90,7 +90,7 @@ spec:
               constraint_functions = (
                   {"type": "eq", "fun": constraint_cost_function_wrapper},
               )
-              optimizer.constraints = constraint_functionss
+              optimizer.constraints = constraint_functions
 
             opt_results = optimizer.minimize(cost_function, initial_parameters)
 
