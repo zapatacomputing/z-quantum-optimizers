@@ -112,6 +112,7 @@ spec:
     parent: generic-task
     inputs:
       parameters:
+      - name: length
       - name: command
         value: python3 main_script.py
       artifacts:
@@ -121,7 +122,7 @@ spec:
           data: |
             import json
             with open('result.txt', 'w') as f:
-              f.write(json.dumps([i for i in range(5)]))
+              f.write(json.dumps([i for i in range({{inputs.parameters.length}})]))
     outputs:
       parameters:
       - name: result
