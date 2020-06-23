@@ -107,3 +107,23 @@ spec:
         path: /app/optimization-results.json
       - name: optimized-parameters
         path: /app/optimized_parameters.json
+
+  - name: gen-number-list
+    parent: generic-task
+    inputs:
+      parameters:
+      - name: command
+        value: python3 main_script.py
+      artifacts:
+      - name: main-script
+        path: /app/main_script.py
+        raw:
+          data: |
+            import json
+            with open('result.txt', 'w') as f:
+              f.write(json.dumps([i for i in range(5)]))
+    outputs:
+      parameters:
+      - name: result
+        valueFrom:
+          path: /app/result.txt
