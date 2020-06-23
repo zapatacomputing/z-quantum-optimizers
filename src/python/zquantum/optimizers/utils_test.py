@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 import os
 from .utils import (
+    ValueEstimate,
     load_optimization_results,
     save_optimization_results,
     validate_optimization_results,
@@ -57,6 +58,45 @@ class TestUtils(unittest.TestCase):
         opt_results["history"] = [
             {"value": 0.1, "params": np.array([1.0, 2.0])},
             {"value": -0.1, "params": np.array([-1.0, 2.0])},
+        ]
+        opt_results["opt_value"] = 5
+        opt_results["opt_params"] = np.array([1.0, 2.0])
+
+        save_optimization_results(opt_results, "opt_result.json")
+        loaded_result = load_optimization_results("opt_result.json")
+
+        for key in opt_results:
+            if key != "history" and key != "opt_params":
+                self.assertEqual(opt_results[key], loaded_result[key])
+
+        self.assertTrue(
+            np.allclose(opt_results["opt_params"], loaded_result["opt_params"])
+        )
+        # Verify that the optimization history is the same
+        self.assertEqual(len(opt_results["history"]), len(loaded_result["history"]))
+        for i in range(len(opt_results["history"])):
+            self.assertAlmostEqual(
+                opt_results["history"][i]["value"], loaded_result["history"][i]["value"]
+            )
+            self.assertTrue(
+                np.allclose(
+                    opt_results["history"][i]["params"],
+                    loaded_result["history"][i]["params"],
+                )
+            )
+
+        os.remove("opt_result.json")
+
+    def test_optimization_result_io_with_value_estimates(self):
+        opt_results = OptimizeResult({})
+        opt_results["value"] = ValueEstimate(0.1)
+        opt_results["status"] = 0
+        opt_results["success"] = True
+        opt_results["nfev"] = 5
+        opt_results["nit"] = 2
+        opt_results["history"] = [
+            {"value": ValueEstimate(0.1), "params": np.array([1.0, 2.0])},
+            {"value": ValueEstimate(-0.1), "params": np.array([-1.0, 2.0])},
         ]
         opt_results["opt_value"] = 5
         opt_results["opt_params"] = np.array([1.0, 2.0])

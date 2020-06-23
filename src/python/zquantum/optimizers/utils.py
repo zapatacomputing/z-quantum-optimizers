@@ -1,4 +1,5 @@
 from zquantum.core.utils import (
+    ValueEstimate,
     convert_dict_to_array,
     convert_array_to_dict,
     SCHEMA_VERSION,
@@ -53,16 +54,24 @@ def load_optimization_results(file):
     optimization_results = {}
     for key in data:
         if key != "history":
-            optimization_results[key] = data[key]
+            if type(data[key]) is dict and "value_estimate" in data[key].get(
+                "schema", ""
+            ):
+                optimization_results[key] = ValueEstimate.from_dict(data[key])
+            else:
+                optimization_results[key] = data[key]
 
     if data.get("history"):
         optimization_results["history"] = []
         for step in data["history"]:
+            if type(step["value"]) is dict and "value_estimate" in step["value"].get(
+                "schema", ""
+            ):
+                value = ValueEstimate.from_dict(step["value"])
+            else:
+                value = step["value"]
             optimization_results["history"].append(
-                {
-                    "value": step["value"],
-                    "params": convert_dict_to_array(step["params"]),
-                }
+                {"value": value, "params": convert_dict_to_array(step["params"]),}
             )
 
     return OptimizeResult(optimization_results)
@@ -81,6 +90,8 @@ def save_optimization_results(optimization_results, filename):
         if key != "history":
             if type(optimization_results[key]) == np.ndarray:
                 data[key] = optimization_results[key].tolist()
+            elif type(optimization_results[key]) == ValueEstimate:
+                data[key] = optimization_results[key].to_dict()
             elif type(optimization_results[key]) == bytes:
                 data[key] = optimization_results[key].decode("utf-8")
             elif type(optimization_results[key]).__module__ == np.__name__:
@@ -91,9 +102,12 @@ def save_optimization_results(optimization_results, filename):
     if optimization_results.get("history"):
         data["history"] = []
         for step in optimization_results["history"]:
+            value = step.get("value")
+            if type(value) == ValueEstimate:
+                value = value.to_dict()
             if "optimization-evaluation-ids" in step.keys():
                 evaluation = {
-                    "value": step.get("value"),
+                    "value": value,
                     "params": convert_array_to_dict(step["params"]),
                     "optimization-evaluation-ids": step["optimization-evaluation-ids"],
                 }
@@ -105,7 +119,7 @@ def save_optimization_results(optimization_results, filename):
                 data["history"].append(evaluation)
             else:
                 evaluation = {
-                    "value": step.get("value"),
+                    "value": value,
                     "params": convert_array_to_dict(step["params"]),
                 }
                 if "bitstring_distribution" in step.keys():
