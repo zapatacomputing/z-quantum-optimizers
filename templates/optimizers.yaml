@@ -6,6 +6,7 @@ spec:
       parameters:
       - name: backend-specs
       - name: optimizer-specs
+      - name: cost-function-specs
       - name: command
         value: bash main_script.sh
       artifacts:
@@ -41,7 +42,6 @@ spec:
           data: |
             import os
             from zquantum.optimizers.utils import save_optimization_results
-            from zquantum.core.cost_function import EvaluateOperatorCostFunction
             from zquantum.core.circuit import load_circuit_template, load_circuit_template_params, save_circuit_template_params, load_parameter_grid, load_circuit_connectivity
             from qeopenfermion import load_qubit_operator
             from zquantum.core.utils import create_object, load_noise_model
@@ -77,11 +77,19 @@ spec:
                 )
             backend = create_object(backend_specs)
 
-            cost_function = EvaluateOperatorCostFunction(operator, ansatz, backend)
-            if os.path.isfile('constraint_operator.json'):
-              constraint_operator = load_qubit_operator('constraint_operator.json')
-              constraint_cost_function = EvaluateOperatorCostFunction(constraint_operator, ansatz, backend)
-              constraint_functions = ({'type': 'eq', 'fun': constraint_cost_function.evaluate},)
+            cost_function_specs = {{inputs.parameters.cost-function-specs}}
+            cost_function_specs["target_operator"] = operator
+            cost_function_specs["ansatz"] = ansatz
+            cost_function_specs["backend"] = backend
+            cost_function = create_object(cost_function_specs)
+            if os.path.isfile("constraint_operator.json"):
+              constraint_operator = load_qubit_operator("constraint_operator.json")
+              cost_function_specs["target_operator"] = constraint_operator
+              constraint_cost_function = create_object(cost_function_specs)
+              constraint_cost_function_wrapper = lambda params: constraint_cost_function.evaluate(params).value
+              constraint_functions = (
+                  {"type": "eq", "fun": constraint_cost_function_wrapper},
+              )
               optimizer.constraints = constraint_functions
 
             opt_results = optimizer.minimize(cost_function, initial_parameters)

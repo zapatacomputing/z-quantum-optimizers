@@ -51,7 +51,7 @@ class QiskitOptimizer(Optimizer):
         def wrapped_(params):
             history.append({"params": params})
             if self.keep_value_history:
-                value = cost_function.evaluate(params)
+                value = cost_function.evaluate(params).value
                 history[-1]["value"] = value
                 print(f"Iteration {len(history)}: {value}", flush=True)
             else:
@@ -59,9 +59,10 @@ class QiskitOptimizer(Optimizer):
             print(f"{params}", flush=True)
 
         number_of_variables = len(initial_params)
+        cost_function_wrapper = lambda params: cost_function.evaluate(params).value
         solution, value, nit = optimizer.optimize(
             num_vars=number_of_variables,
-            objective_function=cost_function.evaluate,
+            objective_function=cost_function_wrapper,
             initial_point=initial_params,
             gradient_function=cost_function.get_gradient,
         )
