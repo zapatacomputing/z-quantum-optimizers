@@ -7,6 +7,8 @@ spec:
       - name: backend-specs
       - name: optimizer-specs
       - name: cost-function-specs
+      - name: run-identifier
+        default: "0"
       - name: command
         value: bash main_script.sh
       artifacts:
