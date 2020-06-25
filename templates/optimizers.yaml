@@ -45,7 +45,6 @@ spec:
             from zquantum.core.circuit import load_circuit_template, load_circuit_template_params, save_circuit_template_params, load_parameter_grid, load_circuit_connectivity
             from qeopenfermion import load_qubit_operator
             from zquantum.core.utils import create_object, load_noise_model
-            from copy import deepcopy
             import json
 
             ansatz = load_circuit_template('ansatz.json')
