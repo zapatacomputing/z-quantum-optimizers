@@ -88,6 +88,9 @@ spec:
             if os.path.isfile("constraint_operator.json"):
               constraint_operator = load_qubit_operator("constraint_operator.json")
               constraints_cost_function_specs = {{inputs.parameters.cost-function-specs}}
+              constraints_estimator_specs = constraints_cost_function_specs.pop("estimator-specs", None)
+              if constraints_estimator_specs is not None:
+                constraints_cost_function_specs["estimator"] = create_object(constraints_estimator_specs)
               constraints_cost_function_specs["ansatz"] = ansatz
               constraints_cost_function_specs["backend"] = backend
               constraints_cost_function_specs["target_operator"] = constraint_operator
