@@ -4,14 +4,13 @@ spec:
     parent: generic-task
     inputs:
       parameters:
+      - name: ansatz-specs
       - name: backend-specs
       - name: optimizer-specs
       - name: cost-function-specs
       - name: command
         value: bash main_script.sh
       artifacts:
-      - name: ansatz
-        path: /app/ansatz.json
       - name: initial-parameters
         path: /app/initial_parameters.json
       - name: qubit-operator
@@ -46,8 +45,9 @@ spec:
             from qeopenfermion import load_qubit_operator
             from zquantum.core.utils import create_object, load_noise_model
             import json
-
-            ansatz = load_circuit_template('ansatz.json')
+            
+            ansatz_specs = {{inputs.parameters.ansatz-specs}}
+            ansatz = create_object(ansatz_specs)
 
             if os.path.isfile('initial_parameters.json'):
               initial_parameters = load_circuit_template_params('initial_parameters.json')
