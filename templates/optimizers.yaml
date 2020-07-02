@@ -46,9 +46,6 @@ spec:
             from zquantum.core.utils import create_object, load_noise_model
             import json
             
-            ansatz_specs = {{inputs.parameters.ansatz-specs}}
-            ansatz = create_object(ansatz_specs)
-
             if os.path.isfile('initial_parameters.json'):
               initial_parameters = load_circuit_template_params('initial_parameters.json')
             else:
@@ -56,6 +53,12 @@ spec:
 
             # Load qubit op
             operator = load_qubit_operator('qubitop.json')
+
+            ansatz_specs = {{inputs.parameters.ansatz-specs}}
+            if ansatz_specs['function_name'] == 'QAOAFarhiAnsatz':
+              ansatz = create_object(ansatz_specs, cost_hamiltonian=operator)
+            else:
+              ansatz = create_object(ansatz_specs)
 
             # Load parameter grid
             if os.path.isfile('parameter_grid.json'):
