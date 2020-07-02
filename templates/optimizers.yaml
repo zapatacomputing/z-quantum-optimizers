@@ -15,6 +15,8 @@ spec:
         path: /app/initial_parameters.json
       - name: qubit-operator
         path: /app/qubitop.json
+      - name: fixed-parameters
+        path: /app/fixed_parameters.json
       - name: noise-model
         path: /app/noise_model.json
         optional: True
@@ -50,6 +52,11 @@ spec:
               initial_parameters = load_circuit_template_params('initial_parameters.json')
             else:
               initial_parameters = None
+
+            if os.path.isfile('fixed_parameters.json'):
+              fixed_parameters = load_circuit_template_params('fixed_parameters.json')
+            else:
+              fixed_parameters = None
 
             # Load qubit op
             operator = load_qubit_operator('qubitop.json')
@@ -87,6 +94,7 @@ spec:
             cost_function_specs["target_operator"] = operator
             cost_function_specs["ansatz"] = ansatz
             cost_function_specs["backend"] = backend
+            cost_function_specs["fixed_parameters"] = fixed_parameters
             cost_function = create_object(cost_function_specs)
             if os.path.isfile("constraint_operator.json"):
               constraint_operator = load_qubit_operator("constraint_operator.json")
