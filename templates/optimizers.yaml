@@ -17,6 +17,7 @@ spec:
         path: /app/qubitop.json
       - name: fixed-parameters
         path: /app/fixed_parameters.json
+        optional: True
       - name: noise-model
         path: /app/noise_model.json
         optional: True
