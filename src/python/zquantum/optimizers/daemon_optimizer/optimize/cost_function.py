@@ -20,11 +20,9 @@ class ProxyCostFunction(CostFunction):
     """
 
     def __init__(self, client, save_evaluation_history=True, epsilon: float = 1e-5):
+        super().__init__(save_evaluation_history=save_evaluation_history)
         self.client = client
-        self.save_evaluation_history = save_evaluation_history
-        self.evaluations_history = []
         self.current_iteration = 0
-        self.gradient_type = "finite_difference"
         self.epsilon = epsilon
 
     def evaluate(self, parameters) -> ValueEstimate:
