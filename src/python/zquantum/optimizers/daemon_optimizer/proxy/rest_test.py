@@ -2,7 +2,6 @@ from .rest import start_proxy
 from zquantum.core.circuit import (
     save_circuit_template_params,
     load_circuit_template_params,
-    generate_random_ansatz_params,
 )
 from zquantum.core.utils import load_value_estimate, save_value_estimate, ValueEstimate
 from multiprocessing import Process
