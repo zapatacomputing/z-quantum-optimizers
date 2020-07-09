@@ -4,6 +4,7 @@ spec:
     parent: generic-task
     inputs:
       parameters:
+      - name: ansatz-specs
       - name: backend-specs
       - name: optimizer-specs
       - name: cost-function-specs
@@ -12,12 +13,13 @@ spec:
       - name: command
         value: bash main_script.sh
       artifacts:
-      - name: ansatz
-        path: /app/ansatz.json
       - name: initial-parameters
         path: /app/initial_parameters.json
       - name: qubit-operator
         path: /app/qubitop.json
+      - name: fixed-parameters
+        path: /app/fixed_parameters.json
+        optional: True
       - name: noise-model
         path: /app/noise_model.json
         optional: True
@@ -48,16 +50,25 @@ spec:
             from qeopenfermion import load_qubit_operator
             from zquantum.core.utils import create_object, load_noise_model
             import json
-
-            ansatz = load_circuit_template('ansatz.json')
-
+            
             if os.path.isfile('initial_parameters.json'):
               initial_parameters = load_circuit_template_params('initial_parameters.json')
             else:
               initial_parameters = None
 
+            if os.path.isfile('fixed_parameters.json'):
+              fixed_parameters = load_circuit_template_params('fixed_parameters.json')
+            else:
+              fixed_parameters = None
+
             # Load qubit op
             operator = load_qubit_operator('qubitop.json')
+
+            ansatz_specs = {{inputs.parameters.ansatz-specs}}
+            if ansatz_specs['function_name'] == 'QAOAFarhiAnsatz':
+              ansatz = create_object(ansatz_specs, cost_hamiltonian=operator)
+            else:
+              ansatz = create_object(ansatz_specs)
 
             # Load parameter grid
             if os.path.isfile('parameter_grid.json'):
@@ -86,6 +97,7 @@ spec:
             cost_function_specs["target_operator"] = operator
             cost_function_specs["ansatz"] = ansatz
             cost_function_specs["backend"] = backend
+            cost_function_specs["fixed_parameters"] = fixed_parameters
             cost_function = create_object(cost_function_specs)
             if os.path.isfile("constraint_operator.json"):
               constraint_operator = load_qubit_operator("constraint_operator.json")
