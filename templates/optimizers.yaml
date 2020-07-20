@@ -30,6 +30,12 @@ spec:
       - name: constraint-operator
         path: /app/constraint_operator.json
         optional: True
+      - name: ordering
+        path: /app/ordering.json
+        optional: true
+      - name: layers
+        path: /app/layers.json
+        optional: true
       - name: main-script
         path: /app/main_script.sh
         raw:
@@ -44,7 +50,10 @@ spec:
           data: |
             import os
             from zquantum.optimizers.utils import save_optimization_results
-            from zquantum.core.circuit import load_circuit_template, load_circuit_template_params, save_circuit_template_params, load_parameter_grid, load_circuit_connectivity
+            from zquantum.core.circuit import (load_circuit_template, load_circuit_template_params, 
+                                               save_circuit_template_params, load_parameter_grid, 
+                                               load_circuit_connectivity, load_circuit_ordering,
+                                               load_circuit_layers )
             from qeopenfermion import load_qubit_operator
             from zquantum.core.utils import create_object, load_noise_model
             import json
@@ -63,6 +72,15 @@ spec:
             operator = load_qubit_operator('qubitop.json')
 
             ansatz_specs = {{inputs.parameters.ansatz-specs}}
+
+            if os.path.isfile('./ordering.json'):
+              ordering = load_circuit_ordering('./ordering.json')
+              ansatz_specs['ordering'] = ordering
+
+            if os.path.isfile('./layers.json'):
+              layers = load_circuit_layers('./layers.json')
+              ansatz_specs['layers'] = layers
+
             if ansatz_specs['function_name'] == 'QAOAFarhiAnsatz':
               ansatz = create_object(ansatz_specs, cost_hamiltonian=operator)
             else:
