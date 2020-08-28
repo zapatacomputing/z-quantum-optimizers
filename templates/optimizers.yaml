@@ -48,7 +48,7 @@ spec:
             from qeopenfermion import load_qubit_operator
             from zquantum.core.utils import create_object, load_noise_model
             import json
-            
+
             if os.path.isfile('initial_parameters.json'):
               initial_parameters = load_circuit_template_params('initial_parameters.json')
             else:
@@ -78,7 +78,7 @@ spec:
               optimizer = create_object(optimizer_specs, grid=grid)
             else:
               optimizer = create_object(optimizer_specs)
-              
+
             backend_specs = {{inputs.parameters.backend-specs}}
             if os.path.isfile('noise_model.json'):
               backend_specs["noise_model"] = load_noise_model("noise_model.json")
@@ -123,3 +123,30 @@ spec:
         path: /app/optimization-results.json
       - name: optimized-parameters
         path: /app/optimized_parameters.json
+
+
+  # CMA-ES optimization returns `xbest`, the best solution evaluated, but one might want to have `xfavorite`, which is the current best estimate of the optimum
+  - name: extract-xfavorite-parameters-from-cmaes-opt-results
+    parent: generic-task
+    inputs:
+      parameters:
+      - name: command
+        value: python3 main_script.py
+      artifacts:
+      - name: optimization-results
+        path: /app/optimization-results.json
+      - name: main-script
+        path: /app/main_script.py
+        raw:
+          data: |
+            from zquantum.optimizers.utils import load_optimization_results
+            from zquantum.core.circuit import save_circuit_template_params
+            import numpy as np
+
+            opt_results=load_optimization_results("optimization-results.json")
+
+            save_circuit_template_params(np.array(opt_results.cma_xfavorite), "optimized-parameters.json")
+    outputs:
+      artifacts:
+      - name: optimized-parameters
+        path: /app/optimized-parameters.json
