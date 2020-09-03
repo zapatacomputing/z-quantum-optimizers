@@ -145,8 +145,8 @@ spec:
 
             opt_results=load_optimization_results("optimization-results.json")
 
-            save_circuit_template_params(np.array(opt_results.cma_xfavorite), "optimized-parameters.json")
+            save_circuit_template_params(np.array(opt_results.cma_xfavorite), "favorite_parameters.json")
     outputs:
       artifacts:
       - name: favorite-parameters
-        path: /app/favorite-parameters.json
+        path: /app/favorite_parameters.json
