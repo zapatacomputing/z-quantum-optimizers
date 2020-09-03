@@ -148,5 +148,5 @@ spec:
             save_circuit_template_params(np.array(opt_results.cma_xfavorite), "optimized-parameters.json")
     outputs:
       artifacts:
-      - name: optimized-parameters
-        path: /app/optimized-parameters.json
+      - name: favorite-parameters
+        path: /app/favorite-parameters.json
