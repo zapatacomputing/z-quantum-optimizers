@@ -11,6 +11,7 @@ from zquantum.core.circuit import (
 from qeopenfermion import load_qubit_operator
 from zquantum.core.utils import create_object, load_noise_model
 import json
+import numpy as np
 
 
 def optimize_variational_circuit(
