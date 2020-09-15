@@ -15,16 +15,16 @@ imports:
   parameters:
     repository: "git@github.com:zapatacomputing/z-quantum-optimizers.git"
     branch: "workflow-v1"
-# - name: qe-qiskit
-#   type: git
-#   parameters:
-#     repository: "git@github.com:zapatacomputing/qe-qiskit.git"
-#     branch: "master"
-# - name: qe-openfermion
-#   type: git
-#   parameters:
-#     repository: "git@github.com:zapatacomputing/qe-openfermion.git"
-#     branch: "master"
+- name: qe-qiskit
+  type: git
+  parameters:
+    repository: "git@github.com:zapatacomputing/qe-qiskit.git"
+    branch: "master"
+- name: qe-openfermion
+  type: git
+  parameters:
+    repository: "git@github.com:zapatacomputing/qe-openfermion.git"
+    branch: "workflow-v1"
 
 steps:
 
@@ -54,14 +54,34 @@ steps:
   outputs:
     - name: params
       type: ansatz-params
-
-
-- name: optimize-circuit
-  passed: [get-initial-parameters]
+- name: get-operator
   config:
     runtime:
       type: python3
-      imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers, qe-qiskit, z-quantum-qcbm]
+      imports: [z-quantum-core, qe-openfermion]
+      parameters:
+        file: qe-openfermion/tasks/operators.py
+        function: get_number_operator
+    resources:
+      cpu: "1000m"
+      memory: "1Gi"
+      disk: "10Gi"
+  inputs:
+  - number_of_qubits: 4
+    type: int
+  - number_of_particles: "None"
+    type: string
+  outputs:
+  - name: number-operator
+    type: operator
+
+
+- name: optimize-circuit
+  passed: [get-initial-parameters, get-operator]
+  config:
+    runtime:
+      type: python3
+      imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers, qe-qiskit]
       parameters:
         file: z-quantum-optimizers/tasks/optimizers_tasks.py
         function: optimize_variational_circuit
@@ -75,8 +95,10 @@ steps:
       type: string
     - optimizer_specs: '{"module_name": "zquantum.optimizers.cma_es_optimizer", "function_name": "CMAESOptimizer", "options": {"popsize": 5, "sigma_0": 0.1, "tolx": 1e-6, "seed": 9}}'
       type: string
-    - cost_function_specs:
+    - cost_function_specs: '{"module_name": "zquantum.core.cost_function", "function_name": "AnsatzBasedCostFunction", "estimator-specs": {"module_name": "zquantum.core.estimator", "function_name": "ExactEstimator"}}'
       type: string
+    - qubit_operator: ((get-operator.number-operator))
+      type: operator
     - initial_parameters: ((get-initial-parameters.params))
       type: ansatz-params
     - fixed_parameters: "None"
@@ -98,3 +120,4 @@ steps:
 types:
  - ansatz-params
  - opt-results
+ - operator
