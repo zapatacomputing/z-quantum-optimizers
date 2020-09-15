@@ -126,7 +126,7 @@ steps:
   config:
     runtime:
       type: python3
-      imports:  [z-quantum-core, z-quantum-optimizers]
+      imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers]
       parameters:
         file: z-quantum-optimizers/tasks/optimizers_tasks.py
         function: extract_xfav_params_from_cma_es_opt_results
