@@ -39,7 +39,7 @@ steps:
       type: python3
       imports: [z-quantum-core, z-quantum-qcbm]
       parameters:
-        file: z-quantum-core/tasks/circuit_tasks.py
+        file: z-quantum-core/tasks/circuit.py
         function: generate_random_ansatz_params
     resources:
       cpu: "1000m"
@@ -128,7 +128,7 @@ steps:
       type: python3
       imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers]
       parameters:
-        file: z-quantum-optimizers/tasks/optimizers_tasks.py
+        file: z-quantum-optimizers/tasks/optimizers.py
         function: extract_xfav_params_from_cma_es_opt_results
     resources:
       cpu: "1000m"
