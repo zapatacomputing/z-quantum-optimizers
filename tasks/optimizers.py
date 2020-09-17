@@ -73,7 +73,7 @@ def optimize_variational_circuit(
     cost_function_specs_dict = json.loads(cost_function_specs)
     estimator_specs = cost_function_specs_dict.pop("estimator-specs", None)
     if estimator_specs is not None:
-        cost_function_specs["estimator"] = create_object(estimator_specs)
+        cost_function_specs_dict["estimator"] = create_object(estimator_specs)
     cost_function_specs_dict["target_operator"] = operator
     cost_function_specs_dict["ansatz"] = ansatz
     cost_function_specs_dict["backend"] = backend
