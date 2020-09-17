@@ -104,13 +104,8 @@ def optimize_variational_circuit(
 
     opt_results = optimizer.minimize(cost_function, initial_params)
 
-    print(opt_results)
-    print(opt_results.opt_params)
-
     save_optimization_results(opt_results, "optimization-results.json")
-    print("Saved opt results")
     save_circuit_template_params(opt_results.opt_params, "optimized-parameters.json")
-    print("saved opt params")
 
 
 # CMA-ES optimization returns `xbest`, the best solution evaluated, but one might want to have `xfavorite`, which is the current best estimate of the optimum
