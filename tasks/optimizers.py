@@ -31,6 +31,7 @@ def optimize_variational_circuit(
         initial_params = load_circuit_template_params(initial_parameters)
     else:
         initial_params = None
+
     if fixed_parameters != "None":
         fixed_params = load_circuit_template_params(fixed_parameters)
     else:
@@ -93,9 +94,9 @@ def optimize_variational_circuit(
         constraints_cost_function_specs["backend"] = backend
         constraints_cost_function_specs["target_operator"] = constraint_op
         constraint_cost_function = create_object(constraints_cost_function_specs)
-        constraint_cost_function_wrapper = lambda params: constraint_cost_function.evaluate(
-            params
-        ).value
+        constraint_cost_function_wrapper = (
+            lambda params: constraint_cost_function.evaluate(params).value
+        )
         constraint_functions = (
             {"type": "eq", "fun": constraint_cost_function_wrapper},
         )
