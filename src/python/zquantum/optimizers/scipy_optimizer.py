@@ -1,6 +1,8 @@
-from zquantum.core.interfaces.optimizer import Optimizer
+from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
+from zquantum.core.history.recorder import recorder
 from typing import List, Optional, Tuple, Callable, Dict
 import scipy
+import scipy.optimize
 
 
 class ScipyOptimizer(Optimizer):
@@ -20,7 +22,7 @@ class ScipyOptimizer(Optimizer):
         Options:
             keep_value_history(bool): boolean flag indicating whether the history of evaluations should be stored or not.
             **kwargs: options specific for particular scipy optimizers.
-            
+
         """
         self.method = method
         if options is None:
@@ -44,42 +46,27 @@ class ScipyOptimizer(Optimizer):
             cost_function(): python method which takes numpy.ndarray as input
             initial_params(np.ndarray): initial parameters to be used for optimization
             callback(): callback function. If none is provided, a default one will be used.
-        
+
         Returns:
             optimization_results(scipy.optimize.OptimizeResults): results of the optimization.
         """
-        history = []
 
-        def default_callback(params):
-            history.append({"params": params})
-            if self.keep_value_history:
-                value = cost_function.evaluate(params)
-                history[-1]["value"] = value
-                print(f"Iteration {len(history)}: {value}", flush=True)
-            else:
-                print(f"iteration {len(history)}")
-            print(f"{params}", flush=True)
+        if self.keep_value_history:
+            cost_function = recorder(cost_function)
 
-        if callback is None:
-            callback = default_callback
-        cost_function_wrapper = lambda params: cost_function.evaluate(params).value
         result = scipy.optimize.minimize(
-            cost_function_wrapper,
+            cost_function,
             initial_params,
             method=self.method,
             options=self.options,
             constraints=self.constraints,
-            callback=callback,
             jac=cost_function.get_gradient,
         )
 
-        result.opt_value = result.fun
-        del result["fun"]
-        result.opt_params = result.x
-        del result["x"]
-        result.history = history
-        if "hess_inv" in result.keys():
-            del result["hess_inv"]
-        if "final_simplex" in result.keys():
-            del result["final_simplex"]
-        return result
+        result_kwargs = (
+            {"history": cost_function.history} if self.keep_value_history else {}
+        )
+
+        return optimization_result(
+            opt_value=result.fun, opt_params=result.opt_params, **result_kwargs
+        )
