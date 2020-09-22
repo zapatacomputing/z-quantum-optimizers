@@ -36,7 +36,7 @@ steps:
 - name: get-initial-parameters
   config:
     runtime:
-      type: python3
+      language: python3
       imports: [z-quantum-core, z-quantum-qcbm]
       parameters:
         file: z-quantum-core/tasks/circuit.py
@@ -62,7 +62,7 @@ steps:
 - name: get-bars-and-stripes-distribution
   config:
     runtime:
-      type: python3
+      language: python3
       imports: [z-quantum-core, z-quantum-qcbm]
       parameters:
         file: z-quantum-qcbm/tasks/generate_target_distribution_task.py
@@ -83,12 +83,11 @@ steps:
   outputs:
     - name: distribution
       type: bitstring-distribution
-
 - name: optimize-circuit
   passed: [get-bars-and-stripes-distribution, get-initial-parameters]
   config:
     runtime:
-      type: python3
+      language: python3
       imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers, qe-qiskit, z-quantum-qcbm]
       parameters:
         file: z-quantum-qcbm/tasks/optimize_variational_qcbm_circuit.py
@@ -97,35 +96,34 @@ steps:
       cpu: "1000m"
       memory: "2Gi"
   inputs:
-  - n_qubits: 4
-    type: int
-  - n_layers: 2
-    type: int
-  - topology: all
-    type: string
-  - distance_measure_specs: '{"module_name": "zquantum.core.bitstring_distribution", "function_name": "compute_clipped_negative_log_likelihood"}'
-    type: string
-  - distance_measure_parameters: '{"epsilon": 1e-6}'
-    type: string
-  - backend_specs: '{"module_name": "qeqiskit.simulator", "function_name": "QiskitSimulator", "device_name": "statevector_simulator"}'
-    type: string
-  - optimizer_specs: '{"module_name": "zquantum.optimizers.cma_es_optimizer", "function_name": "CMAESOptimizer", "options": {"popsize": 5, "sigma_0": 0.1, "tolx": 1e-6, "seed": 9}}'
-    type: string
-  - initial_parameters: ((get-initial-parameters.params))
-    type: ansatz-params
-  - target_distribution: ((get-bars-and-stripes-distribution.distribution))
-    type: bitstring-distribution
+    - n_qubits: 4
+      type: int
+    - n_layers: 2
+      type: int
+    - topology: all
+      type: string
+    - distance_measure_specs: '{"module_name": "zquantum.core.bitstring_distribution", "function_name": "compute_clipped_negative_log_likelihood"}'
+      type: string
+    - distance_measure_parameters: '{"epsilon": 1e-6}'
+      type: string
+    - backend_specs: '{"module_name": "qeqiskit.simulator", "function_name": "QiskitSimulator", "device_name": "statevector_simulator"}'
+      type: string
+    - optimizer_specs: '{"module_name": "zquantum.optimizers.cma_es_optimizer", "function_name": "CMAESOptimizer", "options": {"popsize": 5, "sigma_0": 0.1, "tolx": 1e-6, "seed": 9}}'
+      type: string
+    - initial_parameters: ((get-initial-parameters.params))
+      type: ansatz-params
+    - target_distribution: ((get-bars-and-stripes-distribution.distribution))
+      type: bitstring-distribution
   outputs:
     - name: qcbm-optimization-results
       type: optimization-results
     - name: optimized-parameters
       type: ansatz-params
-
 - name: extract-params
   passed: [optimize-circuit]
   config:
     runtime:
-      type: python3
+      language: python3
       imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers]
       parameters:
         file: z-quantum-optimizers/tasks/optimizers.py
@@ -134,7 +132,7 @@ steps:
       cpu: "1000m"
       memory: "2Gi"
   inputs:
-  - optimization_results: ((optimize-circuit.qcbm-optimization-results))
+    - optimization_results: ((optimize-circuit.qcbm-optimization-results))
     type: optimization-results
   outputs:
     - name: fav-params

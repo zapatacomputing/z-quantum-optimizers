@@ -31,7 +31,7 @@ steps:
 - name: get-initial-parameters
   config:
     runtime:
-      type: python3
+      language: python3
       imports: [z-quantum-core]
       parameters:
         file: z-quantum-core/tasks/circuit.py
@@ -57,7 +57,7 @@ steps:
 - name: get-operator
   config:
     runtime:
-      type: python3
+      language: python3
       imports: [z-quantum-core, qe-openfermion]
       parameters:
         file: qe-openfermion/tasks/operators.py
@@ -74,12 +74,11 @@ steps:
   outputs:
   - name: number-operator
     type: operator
-
 - name: transform-operator
   passed: [get-operator]
   config:
     runtime:
-      type: python3
+      language: python3
       imports: [z-quantum-core, qe-openfermion]
       parameters:
         file: qe-openfermion/tasks/transforms.py
@@ -96,14 +95,11 @@ steps:
   outputs:
   - name: transformed-operator
     type: operator
-
-
-
 - name: optimize-circuit
   passed: [get-initial-parameters, transform-operator]
   config:
     runtime:
-      type: python3
+      language: python3
       imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers, qe-qiskit]
       parameters:
         file: z-quantum-optimizers/tasks/optimizers.py
