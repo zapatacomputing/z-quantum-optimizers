@@ -10,21 +10,11 @@ imports:
   parameters:
     repository: "git@github.com:zapatacomputing/z-quantum-optimizers.git"
     branch: "workflow-v1"
-- name: z-quantum-qcbm
-  type: git
-  parameters:
-    repository: "git@github.com:zapatacomputing/z-quantum-qcbm.git"
-    branch: "workflow-v1"
 - name: z-quantum-core
   type: git
   parameters:
     repository: "git@github.com:zapatacomputing/z-quantum-core.git"
     branch: "workflow-v1"
-- name: qe-qiskit
-  type: git
-  parameters:
-    repository: "git@github.com:zapatacomputing/qe-qiskit.git"
-    branch: "master"
 - name: qe-openfermion
   type: git
   parameters:
@@ -32,12 +22,11 @@ imports:
     branch: "v1-revisions"
 
 steps:
-
 - name: get-initial-parameters
   config:
     runtime:
       language: python3
-      imports: [z-quantum-core, z-quantum-qcbm]
+      imports: [z-quantum-core]
       parameters:
         file: z-quantum-core/steps/circuit.py
         function: generate_random_ansatz_params
@@ -46,7 +35,7 @@ steps:
       memory: "1Gi"
       disk: "10Gi"
   inputs:
-    - ansatz_specs: '{"module_name": "zquantum.qcbm.ansatz", "function_name": "QCBMAnsatz", "number_of_layers": 2, "number_of_qubits": 4, "topology": "all"}'
+    - ansatz_specs: '{"module_name": "zquantum.core.interfaces.mock_objects", "function_name": "MockAnsatz", "number_of_layers": 2, "problem_size": 4}'
       type: string
     - min_value: -1.57
       type: float
@@ -59,64 +48,85 @@ steps:
   outputs:
     - name: params
       type: ansatz-params
-- name: get-bars-and-stripes-distribution
+- name: get-operator
   config:
     runtime:
       language: python3
-      imports: [z-quantum-core, z-quantum-qcbm]
+      imports: [z-quantum-core, qe-openfermion]
       parameters:
-        file: z-quantum-qcbm/steps/generate_target_distribution_task.py
-        function: generate_bars_and_stripes_target_distribution
+        file: qe-openfermion/steps/operators.py
+        function: get_number_operator
     resources:
       cpu: "1000m"
       memory: "1Gi"
       disk: "10Gi"
   inputs:
-    - nrows: 2
-      type: int
-    - ncols: 2
-      type: int
-    - fraction: 1.0000000001
-      type: float
-    - method: 'zigzag'
-      type: string
+  - number_of_qubits: 4
+    type: int
+  - number_of_particles: "None"
+    type: string
   outputs:
-    - name: distribution
-      type: bitstring-distribution
-- name: optimize-circuit
-  passed: [get-bars-and-stripes-distribution, get-initial-parameters]
+  - name: number-operator
+    type: operator
+- name: transform-operator
+  passed: [get-operator]
   config:
     runtime:
       language: python3
-      imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers, qe-qiskit, z-quantum-qcbm]
+      imports: [z-quantum-core, qe-openfermion]
       parameters:
-        file: z-quantum-qcbm/steps/optimize_variational_qcbm_circuit.py
-        function: optimize_variational_qcbm_circuit
+        file: qe-openfermion/steps/transforms.py
+        function: transform_interaction_operator
+    resources:
+      cpu: "1000m"
+      memory: "1Gi"
+      disk: "10Gi"
+  inputs:
+  - transformation: "Jordan-Wigner"
+    type: string
+  - input_operator: ((get-operator.number-operator))
+    type: operator
+  outputs:
+  - name: transformed-operator
+    type: operator
+- name: optimize-circuit
+  passed: [get-initial-parameters, transform-operator]
+  config:
+    runtime:
+      language: python3
+      imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers]
+      parameters:
+        file: z-quantum-optimizers/steps/optimizers.py
+        function: optimize_variational_circuit
     resources:
       cpu: "1000m"
       memory: "2Gi"
   inputs:
-    - n_qubits: 4
-      type: int
-    - n_layers: 2
-      type: int
-    - topology: all
+    - ansatz_specs: '{"module_name": "zquantum.core.interfaces.mock_objects", "function_name": "MockAnsatz", "number_of_layers": 2, "problem_size": 4}'
       type: string
-    - distance_measure_specs: '{"module_name": "zquantum.core.bitstring_distribution", "function_name": "compute_clipped_negative_log_likelihood"}'
-      type: string
-    - distance_measure_parameters: '{"epsilon": 1e-6}'
-      type: string
-    - backend_specs: '{"module_name": "qeqiskit.simulator", "function_name": "QiskitSimulator", "device_name": "statevector_simulator"}'
+    - backend_specs: '{"module_name": "zquantum.core.interfaces.mock_objects", "function_name": "MockQuantumSimulator", "n_samples": 10}'
       type: string
     - optimizer_specs: '{"module_name": "zquantum.optimizers.cma_es_optimizer", "function_name": "CMAESOptimizer", "options": {"popsize": 5, "sigma_0": 0.1, "tolx": 1e-6, "seed": 9}}'
       type: string
+    - cost_function_specs: '{"module_name": "zquantum.core.cost_function", "function_name": "AnsatzBasedCostFunction", "estimator-specs": {"module_name": "zquantum.core.estimator", "function_name": "ExactEstimator"}}'
+      type: string
+    - qubit_operator: ((transform-operator.transformed-operator))
+      type: operator
     - initial_parameters: ((get-initial-parameters.params))
       type: ansatz-params
-    - target_distribution: ((get-bars-and-stripes-distribution.distribution))
-      type: bitstring-distribution
+    - fixed_parameters: "None"
+      type: string
+    - noise_model: "None"
+      type: string
+    - device_connectivity: "None"
+      type: string
+    - parameter_grid: "None"
+      type: string
+    - constraint_operator: "None"
+      type: string
   outputs:
-    - name: qcbm-optimization-results
-      type: optimization-results
+    - name: optimization-results
+      type: opt-results
     - name: optimized-parameters
       type: ansatz-params
 - name: extract-params
@@ -132,13 +142,13 @@ steps:
       cpu: "1000m"
       memory: "2Gi"
   inputs:
-    - optimization_results: ((optimize-circuit.qcbm-optimization-results))
-      type: optimization-results
+    - optimization_results: ((optimize-circuit.optimization-results))
+      type: opt-results
   outputs:
     - name: fav-params
       type: ansatz-params
 
 types:
  - ansatz-params
- - bitstring-distribution
- - optimization-results
+ - operator
+ - opt-results

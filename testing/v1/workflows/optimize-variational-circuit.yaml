@@ -15,11 +15,6 @@ imports:
   parameters:
     repository: "git@github.com:zapatacomputing/z-quantum-optimizers.git"
     branch: "workflow-v1"
-- name: qe-qiskit
-  type: git
-  parameters:
-    repository: "git@github.com:zapatacomputing/qe-qiskit.git"
-    branch: "master"
 - name: qe-openfermion
   type: git
   parameters:
@@ -100,7 +95,7 @@ steps:
   config:
     runtime:
       language: python3
-      imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers, qe-qiskit]
+      imports:  [z-quantum-core, qe-openfermion, z-quantum-optimizers]
       parameters:
         file: z-quantum-optimizers/steps/optimizers.py
         function: optimize_variational_circuit
@@ -110,7 +105,7 @@ steps:
   inputs:
     - ansatz_specs: '{"module_name": "zquantum.core.interfaces.mock_objects", "function_name": "MockAnsatz", "number_of_layers": 2, "problem_size": 4}'
       type: string
-    - backend_specs: '{"module_name": "qeqiskit.simulator", "function_name": "QiskitSimulator", "device_name": "statevector_simulator"}'
+    - backend_specs: '{"module_name": "zquantum.core.interfaces.mock_objects", "function_name": "MockQuantumSimulator", "n_samples": 10}'
       type: string
     - optimizer_specs: '{"module_name": "zquantum.optimizers.cma_es_optimizer", "function_name": "CMAESOptimizer", "options": {"popsize": 5, "sigma_0": 0.1, "tolx": 1e-6, "seed": 9}}'
       type: string
