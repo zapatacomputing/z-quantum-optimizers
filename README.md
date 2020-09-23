@@ -38,14 +38,14 @@ and then add it in the `imports` argument of your `step`:
 Once that is done you can:
 - use any `z-quantum-optimizers` function by specifying its name and path as follows:
 ```yaml
-- - name: optimize-circuit
-    config:
-      runtime:
-        language: python3
-        imports: [z-quantum-optimizers]
-        parameters:
-          file: z-quantum-optimizers/steps/optimizers.py
-          function: optimize_variational_circuit
+- name: optimize-circuit
+  config:
+    runtime:
+      language: python3
+      imports: [z-quantum-optimizers]
+      parameters:
+        file: z-quantum-optimizers/steps/optimizers.py
+        function: optimize_variational_circuit
 ```
 - use tasks which import `zquantum.optimizers` in the python code (see below).
 
