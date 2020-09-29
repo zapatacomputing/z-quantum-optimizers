@@ -1,5 +1,5 @@
 from zquantum.core.interfaces.functions import CallableWithGradient
-from zquantum.core.interfaces.optimizer import Optimizer
+from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
 from qiskit.aqua.components.optimizers import SPSA, ADAM
 from scipy.optimize import OptimizeResult
 
@@ -62,11 +62,7 @@ class QiskitOptimizer(Optimizer):
             initial_point=initial_params,
             gradient_function=cost_function.gradient,
         )
-        optimization_results = {}
-        optimization_results["opt_value"] = value
-        optimization_results["opt_params"] = solution
-        optimization_results["history"] = {}
-        optimization_results["nfev"] = statistics["call_count"]
-        optimization_results["nit"] = nit
 
-        return OptimizeResult(optimization_results)
+        return optimization_result(
+            opt_value=value, opt_params=solution, history=[], nfev=statistics["call_count"], nit=nit
+        )
