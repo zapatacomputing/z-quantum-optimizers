@@ -60,7 +60,7 @@ class ScipyOptimizer(Optimizer):
             method=self.method,
             options=self.options,
             constraints=self.constraints,
-            jac=cost_function.get_gradient,
+            jac=cost_function.gradient,
         )
 
         result_kwargs = (
@@ -68,5 +68,5 @@ class ScipyOptimizer(Optimizer):
         )
 
         return optimization_result(
-            opt_value=result.fun, opt_params=result.opt_params, **result_kwargs
+            opt_value=result.fun, opt_params=result.x, **result_kwargs
         )
