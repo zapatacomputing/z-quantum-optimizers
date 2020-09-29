@@ -68,5 +68,5 @@ class ScipyOptimizer(Optimizer):
         )
 
         return optimization_result(
-            opt_value=result.fun, opt_params=result.x, **result_kwargs
+            opt_value=result.fun, opt_params=result.x, nit=result.nit, nfev=result.nfev, **result_kwargs
         )
