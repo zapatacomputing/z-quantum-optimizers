@@ -1,5 +1,6 @@
 import numpy as np
 from zquantum.core.history.recorder import recorder
+from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
 from scipy.optimize import OptimizeResult
 import cma
@@ -33,7 +34,9 @@ class CMAESOptimizer(Optimizer):
                 "CMA-ES always keeps track of the history, regardless of the keep_value_history flag."
             )
 
-    def minimize(self, cost_function, initial_params: np.ndarray) -> OptimizeResult:
+    def minimize(
+        self, cost_function: CallableWithGradient, initial_params: np.ndarray
+    ) -> OptimizeResult:
         """Minimize using the Covariance Matrix Adaptation Evolution Strategy
         (CMA-ES).
 
