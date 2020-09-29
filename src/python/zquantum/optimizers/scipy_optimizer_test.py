@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
 from scipy.optimize import OptimizeResult
+from zquantum.core.gradients import finite_differences_gradient
+from zquantum.core.interfaces.functions import FunctionWithGradient
 from zquantum.core.interfaces.optimizer_test import (
     OptimizerTests,
     rosenbrock_function,
@@ -13,10 +15,10 @@ from zquantum.core.cost_function import BasicCostFunction
 class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
     def setUp(self):
         self.optimizers = [
-            ScipyOptimizer(method="BFGS"),
-            ScipyOptimizer(method="L-BFGS-B"),
-            ScipyOptimizer(method="Nelder-Mead"),
-            ScipyOptimizer(method="SLSQP"),
+            ScipyOptimizer(method="BFGS", options={"keep_value_history": True}),
+            ScipyOptimizer(method="L-BFGS-B", options={"keep_value_history": True}),
+            ScipyOptimizer(method="Nelder-Mead", options={"keep_value_history": True}),
+            ScipyOptimizer(method="SLSQP", options={"keep_value_history": True}),
         ]
 
     def test_SLSQP_with_equality_constraints(self):
