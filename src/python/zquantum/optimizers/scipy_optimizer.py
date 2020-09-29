@@ -63,14 +63,10 @@ class ScipyOptimizer(Optimizer):
             jac=cost_function.gradient,
         )
 
-        result_kwargs = (
-            {"history": cost_function.history} if self.keep_value_history else {}
-        )
-
         return optimization_result(
             opt_value=result.fun,
             opt_params=result.x,
             nit=result.nit,
             nfev=result.nfev,
-            **result_kwargs
+            history=cost_function.history if self.keep_value_history else []
         )

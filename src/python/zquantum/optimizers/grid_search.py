@@ -58,9 +58,9 @@ class GridSearchOptimizer(Optimizer):
                 min_value = value
                 optimal_params = params
 
-        result_kwargs = {"history": cost_function.history if self.keep_value_history else []}
+
         return optimization_result(
-            opt_value=min_value, opt_params=optimal_params, nfev=nfev, nit=None, **result_kwargs
+            opt_value=min_value, opt_params=optimal_params, nfev=nfev, nit=None, history=cost_function.history if self.keep_value_history else []
         )
 
     def get_values_grid(self, optimization_results: OptimizeResult) -> np.ndarray:
