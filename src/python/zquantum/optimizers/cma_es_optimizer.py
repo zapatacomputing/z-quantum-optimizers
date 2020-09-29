@@ -1,7 +1,8 @@
-from zquantum.core.interfaces.optimizer import Optimizer
+import numpy as np
+from zquantum.core.history.recorder import recorder
+from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
 from scipy.optimize import OptimizeResult
 import cma
-import copy
 
 
 class CMAESOptimizer(Optimizer):
@@ -32,13 +33,13 @@ class CMAESOptimizer(Optimizer):
                 "CMA-ES always keeps track of the history, regardless of the keep_value_history flag."
             )
 
-    def minimize(self, cost_function, initial_params):
+    def minimize(self, cost_function, initial_params: np.ndarray) -> OptimizeResult:
         """Minimize using the Covariance Matrix Adaptation Evolution Strategy
         (CMA-ES).
 
         Args:
-            cost_function(zquantum.core.interfaces.cost_function.CostFunction): object representing cost function we want to minimize
-            initial_params (numpy.ndarray): initial guess for the ansatz parameters.
+            cost_function: object representing cost function we want to minimize
+            initial_params: initial guess for the ansatz parameters.
 
         Returns:
             tuple: A tuple containing an optimization results dict and a numpy array
@@ -47,23 +48,16 @@ class CMAESOptimizer(Optimizer):
 
         # Optimization Results Object
         history = []
-
-        def wrapped_cost_function(params):
-            value = cost_function.evaluate(params).value
-            history.append(cost_function.evaluations_history[-1])
-            print(f"Function evaluation {len(history)}: {value}", flush=True)
-            print(f"{params}", flush=True)
-            return value
+        cost_function = recorder(cost_function)
 
         strategy = cma.CMAEvolutionStrategy(initial_params, self.sigma_0, self.options)
-        result = strategy.optimize(wrapped_cost_function).result
+        result = strategy.optimize(cost_function).result
 
-        optimization_results = {}
-        optimization_results["opt_value"] = result.fbest
-        optimization_results["opt_params"] = result.xbest
-        optimization_results["history"] = history
-        optimization_results["nfev"] = result.evaluations
-        optimization_results["nit"] = result.iterations
-        optimization_results["cma_xfavorite"] = list(result.xfavorite)
-
-        return OptimizeResult(optimization_results)
+        return optimization_result(
+            opt_value=result.fbest,
+            opt_params=result.xbest,
+            history=cost_function.history,
+            nfev=result.evaluations,
+            nit=result.iterations,
+            cma_xfavorite=list(result.xfavorite)
+        )
