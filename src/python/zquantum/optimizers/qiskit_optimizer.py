@@ -1,3 +1,4 @@
+from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import Optimizer
 from qiskit.aqua.components.optimizers import SPSA, ADAM
 from scipy.optimize import OptimizeResult
@@ -28,7 +29,7 @@ class QiskitOptimizer(Optimizer):
                 "Orquestra does not support keeping history of the evaluations yet."
             )
 
-    def minimize(self, cost_function, initial_params=None):
+    def minimize(self, cost_function: CallableWithGradient, initial_params=None):
         """
         Minimizes given cost function using optimizers from Qiskit Aqua.
 
@@ -39,7 +40,6 @@ class QiskitOptimizer(Optimizer):
         Returns:
             optimization_results(scipy.optimize.OptimizeResults): results of the optimization.
         """
-        history = []
 
         if self.method == "SPSA":
             optimizer = SPSA(**self.options)
@@ -48,29 +48,25 @@ class QiskitOptimizer(Optimizer):
                 self.options["amsgrad"] = True
             optimizer = ADAM(**self.options)
 
-        def wrapped_(params):
-            history.append({"params": params})
-            if self.keep_value_history:
-                value = cost_function.evaluate(params).value
-                history[-1]["value"] = value
-                print(f"Iteration {len(history)}: {value}", flush=True)
-            else:
-                print(f"iteration {len(history)}")
-            print(f"{params}", flush=True)
+        statistics = {"call_count": 0}
+
+        def _cost_function_wrapper(params):
+            statistics["call_count"] += 1
+            return cost_function(params)
 
         number_of_variables = len(initial_params)
-        cost_function_wrapper = lambda params: cost_function.evaluate(params).value
+
         solution, value, nit = optimizer.optimize(
             num_vars=number_of_variables,
-            objective_function=cost_function_wrapper,
+            objective_function=_cost_function_wrapper,
             initial_point=initial_params,
-            gradient_function=cost_function.get_gradient,
+            gradient_function=cost_function.gradient,
         )
         optimization_results = {}
         optimization_results["opt_value"] = value
         optimization_results["opt_params"] = solution
         optimization_results["history"] = {}
-        optimization_results["nfev"] = len(cost_function.evaluations_history)
+        optimization_results["nfev"] = statistics["call_count"]
         optimization_results["nit"] = nit
 
         return OptimizeResult(optimization_results)
