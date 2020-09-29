@@ -50,7 +50,6 @@ class CMAESOptimizer(Optimizer):
         """
 
         # Optimization Results Object
-        history = []
         cost_function = recorder(cost_function)
 
         strategy = cma.CMAEvolutionStrategy(initial_params, self.sigma_0, self.options)
