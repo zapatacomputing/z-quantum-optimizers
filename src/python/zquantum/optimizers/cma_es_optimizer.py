@@ -16,7 +16,7 @@ class CMAESOptimizer(Optimizer):
             sigma_0(float): initial standard deviation. Required option
             keep_value_history(bool): boolean flag indicating whether the history of evaluations should be stored or not.
             **kwargs: other options, please refer to https://github.com/CMA-ES/pycma documentation.
-            
+
         """
 
         if "sigma_0" not in options.keys():
@@ -59,5 +59,5 @@ class CMAESOptimizer(Optimizer):
             history=cost_function.history,
             nfev=result.evaluations,
             nit=result.iterations,
-            cma_xfavorite=list(result.xfavorite)
+            cma_xfavorite=list(result.xfavorite),
         )
