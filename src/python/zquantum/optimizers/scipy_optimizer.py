@@ -1,6 +1,6 @@
 from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
 from zquantum.core.history.recorder import recorder
-from typing import List, Optional, Tuple, Callable, Dict
+from typing import Optional, Tuple, Callable, Dict
 import scipy
 import scipy.optimize
 

@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-from scipy.optimize import OptimizeResult
 from zquantum.core.gradients import finite_differences_gradient
 from zquantum.core.interfaces.functions import FunctionWithGradient
 from zquantum.core.interfaces.optimizer_test import (
@@ -9,7 +8,6 @@ from zquantum.core.interfaces.optimizer_test import (
     sum_x_squared,
 )
 from .scipy_optimizer import ScipyOptimizer
-from zquantum.core.cost_function import BasicCostFunction
 
 
 class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
