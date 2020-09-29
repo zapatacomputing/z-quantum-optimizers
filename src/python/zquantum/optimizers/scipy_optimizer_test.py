@@ -13,10 +13,10 @@ from .scipy_optimizer import ScipyOptimizer
 class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
     def setUp(self):
         self.optimizers = [
-            ScipyOptimizer(method="BFGS", options={"keep_value_history": True}),
-            ScipyOptimizer(method="L-BFGS-B", options={"keep_value_history": True}),
-            ScipyOptimizer(method="Nelder-Mead", options={"keep_value_history": True}),
-            ScipyOptimizer(method="SLSQP", options={"keep_value_history": True}),
+            ScipyOptimizer(method="BFGS"),
+            ScipyOptimizer(method="L-BFGS-B"),
+            ScipyOptimizer(method="Nelder-Mead"),
+            ScipyOptimizer(method="SLSQP"),
         ]
 
     def test_SLSQP_with_equality_constraints(self):
