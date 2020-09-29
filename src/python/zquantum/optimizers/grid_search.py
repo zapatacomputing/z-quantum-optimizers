@@ -1,8 +1,9 @@
-from zquantum.core.interfaces.optimizer import Optimizer
-from zquantum.core.interfaces.cost_function import CostFunction
+from zquantum.core.history.recorder import recorder
+from zquantum.core.interfaces.functions import CallableWithGradient
+from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
 from zquantum.core.circuit import ParameterGrid
 from scipy.optimize import OptimizeResult
-from typing import Dict, Optional, Callable
+from typing import Dict, Optional
 import numpy as np
 
 
@@ -29,7 +30,7 @@ class GridSearchOptimizer(Optimizer):
             del self.options["keep_value_history"]
 
     def minimize(
-        self, cost_function: CostFunction, initial_params: Optional[np.ndarray] = None
+        self, cost_function: CallableWithGradient, initial_params: Optional[np.ndarray] = None
     ) -> OptimizeResult:
         """
         Finds the parameters which minimize given cost function, by trying all the parameters from the grid.
@@ -47,23 +48,20 @@ class GridSearchOptimizer(Optimizer):
         min_value = None
         nfev = 0
 
+        if self.keep_value_history:
+            cost_function = recorder(cost_function)
+
         for params in self.grid.params_list:
-            value = cost_function.evaluate(params).value
-            if self.keep_value_history:
-                history.append({"params": params, "value": value})
+            value = cost_function(params)
             nfev += 1
             if min_value is None or value < min_value:
                 min_value = value
                 optimal_params = params
 
-        optimization_results = {}
-        optimization_results["opt_value"] = min_value
-        optimization_results["opt_params"] = optimal_params
-        optimization_results["history"] = history
-        optimization_results["nfev"] = nfev
-        optimization_results["nit"] = None
 
-        return OptimizeResult(optimization_results)
+        return optimization_result(
+            opt_value=min_value, opt_params=optimal_params, nfev=nfev, nit=None, history=cost_function.history if self.keep_value_history else []
+        )
 
     def get_values_grid(self, optimization_results: OptimizeResult) -> np.ndarray:
         """Shapes the values from the optimization results into the shape of the grid.
