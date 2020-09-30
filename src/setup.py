@@ -1,7 +1,8 @@
 import setuptools
 import os
 
-with open("README.md", "r") as f:
+readme_path = os.path.join("..", "README.md")
+with open(readme_path, "r") as f:
     long_description = f.read()
 
 setuptools.setup(
@@ -13,8 +14,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/zapatacomputing/z-quantum-optimizers ",
-    packages=["zquantum.optimizers"],
-    package_dir={"": "src/python"},
+    packages=setuptools.find_namespace_packages(include=["zquantum.*"]),
+    package_dir={"": "python"},
     classifiers=(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
