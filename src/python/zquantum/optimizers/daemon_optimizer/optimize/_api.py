@@ -49,13 +49,11 @@ def optimize_variational_circuit_with_proxy(
     # Update opt_results object
     # TODO: this is done temporarily to ensure no data is lost. However, storing history
     # should be handled by optimizer, not cost_function.
-    opt_results["history"] = cost_function.evaluations_history
+    opt_results["history"] = []
 
     # Since a new history element is added in the callback function, if there is
     #   at least one iteration, there is an empty history element at the end
     #   that must be removed
-    if "nit" in opt_results.keys() and opt_results.nit > 0:
-        del opt_results["history"][-1]
 
     # POST status to DONE
     client.post_status("DONE")
