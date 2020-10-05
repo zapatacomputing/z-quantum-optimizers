@@ -1,6 +1,5 @@
 from zquantum.optimizers.utils import (
     load_optimization_results,
-    save_optimization_results,
 )
 from zquantum.core.circuit import (
     load_circuit_template_params,
@@ -10,6 +9,7 @@ from zquantum.core.circuit import (
 )
 from qeopenfermion import load_qubit_operator
 from zquantum.core.utils import create_object, load_noise_model
+from zquantum.core.serialization import save_optimization_results
 import json
 import numpy as np
 
