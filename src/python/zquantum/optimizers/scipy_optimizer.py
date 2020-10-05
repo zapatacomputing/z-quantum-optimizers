@@ -54,13 +54,19 @@ class ScipyOptimizer(Optimizer):
         if self.keep_value_history:
             cost_function = recorder(cost_function)
 
+        jacobian = None
+        if hasattr(cost_function, "gradient") and callable(
+            getattr(cost_function, "gradient")
+        ):
+            jacobian = cost_function.gradient
+
         result = scipy.optimize.minimize(
             cost_function,
             initial_params,
             method=self.method,
             options=self.options,
             constraints=self.constraints,
-            jac=cost_function.gradient,
+            jac=jacobian,
         )
 
         return optimization_result(
@@ -68,5 +74,5 @@ class ScipyOptimizer(Optimizer):
             opt_params=result.x,
             nit=result.nit,
             nfev=result.nfev,
-            history=cost_function.history if self.keep_value_history else []
+            history=cost_function.history if self.keep_value_history else [],
         )
