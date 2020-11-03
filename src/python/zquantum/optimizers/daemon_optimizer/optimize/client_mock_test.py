@@ -2,8 +2,10 @@ from .client_mock import MockedClient
 
 import unittest
 import json
+import pytest
 
 
+@pytest.mark.skip()
 class TestOptimizationServer(unittest.TestCase):
     def setUp(self):
         pass

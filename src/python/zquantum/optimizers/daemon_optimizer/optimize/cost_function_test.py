@@ -1,11 +1,15 @@
 import unittest
 import numpy as np
 import os
+
+import pytest
+
 from .cost_function import ProxyCostFunction
 from .client_mock import MockedClient
 from zquantum.core.utils import ValueEstimate
 
 
+@pytest.mark.skip()
 class TestProxyCostFunction(unittest.TestCase):
     def setUp(self):
         self.port = "1234"
