@@ -71,15 +71,8 @@ class ScipyOptimizer(Optimizer):
         opt_value = result.fun
         opt_params = result.x
 
-        if "nit" not in result.keys():
-            nit = None
-        else:
-            nit = result.nit
-
-        if "nfev" not in result.keys():
-            nfev = None
-        else:
-            nfev = result.nfev
+        nit = result.get("nit", None)
+        nfev = result.get("nfev", None)
 
         return optimization_result(
             opt_value=opt_value,
