@@ -68,11 +68,23 @@ class ScipyOptimizer(Optimizer):
             constraints=self.constraints,
             jac=jacobian,
         )
+        opt_value = result.fun
+        opt_params = result.x
+
+        if "nit" not in result.keys():
+            nit = None
+        else:
+            nit = result.nit
+
+        if "nfev" not in result.keys():
+            nfev = None
+        else:
+            nfev = result.nfev
 
         return optimization_result(
-            opt_value=result.fun,
-            opt_params=result.x,
-            nit=result.nit,
-            nfev=result.nfev,
+            opt_value=opt_value,
+            opt_params=opt_params,
+            nit=nit,
+            nfev=nfev,
             history=cost_function.history if self.keep_value_history else [],
         )
