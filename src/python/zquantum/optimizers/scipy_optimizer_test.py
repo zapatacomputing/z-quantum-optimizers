@@ -17,6 +17,7 @@ class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
             ScipyOptimizer(method="L-BFGS-B"),
             ScipyOptimizer(method="Nelder-Mead"),
             ScipyOptimizer(method="SLSQP"),
+            ScipyOptimizer(method="COBYLA", options={"maxiter": 50000, "tol": 1e-7}),
         ]
 
     def test_SLSQP_with_equality_constraints(self):
