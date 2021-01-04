@@ -21,7 +21,7 @@ def optimizer(request):
     return ScipyOptimizer(**request.param)
 
 
-class TestScipyOptimizerTests(OptimizerTests):
+class TestScipyOptimizer(OptimizerTests):
 
     def test_SLSQP_with_equality_constraints(self):
         # Given

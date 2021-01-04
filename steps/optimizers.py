@@ -1,6 +1,3 @@
-from zquantum.optimizers.utils import (
-    load_optimization_results,
-)
 from zquantum.core.circuit import (
     load_circuit_template_params,
     save_circuit_template_params,
@@ -9,8 +6,8 @@ from zquantum.core.circuit import (
 )
 from qeopenfermion import load_qubit_operator
 from zquantum.core.utils import create_object, load_noise_model
-from zquantum.core.serialization import save_optimization_results
-import json
+from zquantum.core.serialization import save_optimization_results, load_optimization_results
+import yaml
 import numpy as np
 
 
@@ -40,7 +37,7 @@ def optimize_variational_circuit(
     # Load qubit operator
     operator = load_qubit_operator(qubit_operator)
 
-    ansatz_specs_dict = json.loads(ansatz_specs)
+    ansatz_specs_dict = yaml.load(ansatz_specs, Loader=yaml.SafeLoader)
     if ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
     else:
@@ -51,8 +48,9 @@ def optimize_variational_circuit(
         grid = load_parameter_grid(parameter_grid)
     else:
         grid = None
-
-    optimizer_specs_dict = json.loads(optimizer_specs)
+    
+    # 
+    optimizer_specs_dict = yaml.load(optimizer_specs, Loader=yaml.SafeLoader)
     if (
         grid is not None
         and optimizer_specs_dict["function_name"] == "GridSearchOptimizer"
@@ -61,7 +59,7 @@ def optimize_variational_circuit(
     else:
         optimizer = create_object(optimizer_specs_dict)
 
-    backend_specs_dict = json.loads(backend_specs)
+    backend_specs_dict = yaml.load(backend_specs, Loader=yaml.SafeLoader)
     if noise_model != "None":
         backend_specs_dict["noise_model"] = load_noise_model(noise_model)
     if device_connectivity != "None":
@@ -70,7 +68,7 @@ def optimize_variational_circuit(
         )
     backend = create_object(backend_specs_dict)
 
-    cost_function_specs_dict = json.loads(cost_function_specs)
+    cost_function_specs_dict = yaml.load(cost_function_specs, Loader=yaml.SafeLoader)
     estimator_specs = cost_function_specs_dict.pop("estimator-specs", None)
     if estimator_specs is not None:
         cost_function_specs_dict["estimator"] = create_object(estimator_specs)
@@ -82,7 +80,7 @@ def optimize_variational_circuit(
 
     if constraint_operator != "None":
         constraint_op = load_qubit_operator(constraint_operator)
-        constraints_cost_function_specs = json.loads(cost_function_specs)
+        constraints_cost_function_specs = yaml.load(cost_function_specs, Loader=yaml.SafeLoader)
         constraints_estimator_specs = constraints_cost_function_specs.pop(
             "estimator-specs", None
         )

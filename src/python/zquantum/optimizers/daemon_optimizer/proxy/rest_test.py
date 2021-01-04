@@ -1,3 +1,5 @@
+import pytest
+
 from .rest import start_proxy
 from zquantum.core.circuit import (
     save_circuit_template_params,
@@ -15,6 +17,7 @@ import subprocess
 import unittest
 
 
+@pytest.mark.skip()
 class TestOptimizationServer(unittest.TestCase):
     def setUp(self):
         self.listening_port = 8080
