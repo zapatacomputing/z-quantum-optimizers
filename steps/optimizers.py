@@ -4,7 +4,7 @@ from zquantum.core.circuit import (
     load_parameter_grid,
     load_circuit_connectivity,
 )
-from qeopenfermion import load_qubit_operator
+from zquantum.core.openfermion import load_qubit_operator
 from zquantum.core.utils import create_object, load_noise_model
 from zquantum.core.serialization import save_optimization_results, load_optimization_results
 import yaml
