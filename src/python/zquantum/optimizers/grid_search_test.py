@@ -1,15 +1,18 @@
 import unittest
 import numpy as np
+import pytest
 from scipy.optimize import OptimizeResult
 from zquantum.core.circuit import ParameterGrid
 from zquantum.core.interfaces.optimizer_test import OptimizerTests
 from .grid_search import GridSearchOptimizer
 
 
-class GridSearchOptimizerTests(unittest.TestCase, OptimizerTests):
-    def setUp(self):
-        grid = ParameterGrid([[0, 1.5, 0.1], [0, 1.5, 0.1]])
-        self.optimizers = [GridSearchOptimizer(grid)]
+@pytest.fixture(params=[ParameterGrid([[0, 1.5, 0.1], [0, 1.5, 0.1]])])
+def optimizer(request):
+    return GridSearchOptimizer(request.param)
+
+
+class TestGridSearchOptimizer(OptimizerTests):
 
     def test_get_values_grid(self):
         # Given
