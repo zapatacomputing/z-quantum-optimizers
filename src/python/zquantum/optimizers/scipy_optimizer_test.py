@@ -1,4 +1,3 @@
-import unittest
 import numpy as np
 from zquantum.core.gradients import finite_differences_gradient
 from zquantum.core.interfaces.functions import FunctionWithGradient
@@ -8,17 +7,21 @@ from zquantum.core.interfaces.optimizer_test import (
     sum_x_squared,
 )
 from .scipy_optimizer import ScipyOptimizer
+import pytest
 
 
-class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
-    def setUp(self):
-        self.optimizers = [
-            ScipyOptimizer(method="BFGS"),
-            ScipyOptimizer(method="L-BFGS-B"),
-            ScipyOptimizer(method="Nelder-Mead"),
-            ScipyOptimizer(method="SLSQP"),
-            ScipyOptimizer(method="COBYLA", options={"maxiter": 50000, "tol": 1e-7}),
-        ]
+@pytest.fixture(params=[
+    {"method": "BFGS"},
+    {"method": "L-BFGS-B"},
+    {"method": "Nelder-Mead"},
+    {"method": "SLSQP"},
+    {"method": "COBYLA", "options": {"maxiter": 50000, "tol": 1e-7}}
+])
+def optimizer(request):
+    return ScipyOptimizer(**request.param)
+
+
+class TestScipyOptimizer(OptimizerTests):
 
     def test_SLSQP_with_equality_constraints(self):
         # Given
@@ -37,10 +40,8 @@ class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
         results = optimizer.minimize(cost_function, initial_params=initial_params)
 
         # Then
-        self.assertAlmostEqual(results.opt_value, target_value, places=3)
-        np.testing.assert_array_almost_equal(
-            results.opt_params, target_params, decimal=3
-        )
+        assert results.opt_value == pytest.approx(target_value, abs=1e-3)
+        assert results.opt_params == pytest.approx(target_params, abs=1e-3)
 
     def test_SLSQP_with_inequality_constraints(self):
         # Given
@@ -61,24 +62,5 @@ class ScipyOptimizerTests(unittest.TestCase, OptimizerTests):
         )
 
         # Then
-        self.assertNotAlmostEqual(
-            results_without_constraints.opt_value, results_with_constraints.opt_value
-        )
-        self.assertGreaterEqual(np.sum(results_with_constraints.opt_params), 3)
-
-    def test_optimizer_succeeds_on_cost_function_without_gradient(self):
-        for optimizer in self.optimizers:
-            cost_function = sum_x_squared
-
-            results = optimizer.minimize(
-                cost_function, initial_params=np.array([1, -1])
-            )
-            self.assertAlmostEqual(results.opt_value, 0, places=5)
-            self.assertAlmostEqual(results.opt_params[0], 0, places=4)
-            self.assertAlmostEqual(results.opt_params[1], 0, places=4)
-
-            self.assertIn("nfev", results.keys())
-            self.assertIn("nit", results.keys())
-            self.assertIn("opt_value", results.keys())
-            self.assertIn("opt_params", results.keys())
-            self.assertIn("history", results.keys())
+        assert results_without_constraints.opt_value == pytest.approx(results_with_constraints.opt_value, abs=1e-1)
+        assert results_with_constraints.opt_params.sum() >= 3

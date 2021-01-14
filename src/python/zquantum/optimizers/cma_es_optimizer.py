@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 from zquantum.core.history.recorder import recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
@@ -7,6 +9,7 @@ import cma
 
 
 class CMAESOptimizer(Optimizer):
+
     def __init__(self, options):
         """
         Args:
@@ -19,7 +22,7 @@ class CMAESOptimizer(Optimizer):
             **kwargs: other options, please refer to https://github.com/CMA-ES/pycma documentation.
 
         """
-
+        options = deepcopy(options)
         if "sigma_0" not in options.keys():
             raise RuntimeError(
                 'Error: CMAESOptimizer input options dictionary must contain "sigma_0" field'
