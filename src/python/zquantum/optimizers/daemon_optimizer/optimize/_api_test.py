@@ -6,8 +6,10 @@ import http.client
 import unittest
 import random
 import subprocess
+import pytest
 
 
+@pytest.mark.skip()
 class TestOptimizationServer(unittest.TestCase):
     def setUp(self):
         self.port = "1234"

@@ -26,5 +26,6 @@ setuptools.setup(
         "cma==2.7.0",
         "Werkzeug>=1.0.0",
         "flask>=1.1.2",
+        "pyyaml==5.3.1",
     ],
 )

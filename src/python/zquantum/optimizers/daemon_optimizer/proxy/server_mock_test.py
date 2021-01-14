@@ -1,6 +1,8 @@
 # NOTE: Mock Server Tests from: https://gist.github.com/eruvanos/f6f62edb368a20aaa880e12976620db8
 
 import unittest
+
+import pytest
 import requests
 import socket
 import time
@@ -8,6 +10,7 @@ import time
 from .server_mock import MockServer
 
 
+@pytest.mark.skip()
 class TestMockServer(unittest.TestCase):
     def setUp(self):
         self.server = MockServer(port=8888)
