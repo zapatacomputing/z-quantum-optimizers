@@ -1,4 +1,3 @@
-import unittest
 import numpy as np
 from zquantum.core.gradients import finite_differences_gradient
 from zquantum.core.interfaces.functions import FunctionWithGradient
