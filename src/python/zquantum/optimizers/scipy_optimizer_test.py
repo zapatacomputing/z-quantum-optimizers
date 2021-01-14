@@ -15,7 +15,8 @@ import pytest
     {"method": "BFGS"},
     {"method": "L-BFGS-B"},
     {"method": "Nelder-Mead"},
-    {"method": "SLSQP"}
+    {"method": "SLSQP"},
+    {"method": "COBYLA", "options": {"maxiter": 50000, "tol": 1e-7}}
 ])
 def optimizer(request):
     return ScipyOptimizer(**request.param)
