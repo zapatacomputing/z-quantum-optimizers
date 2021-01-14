@@ -72,7 +72,7 @@ class ScipyOptimizer(Optimizer):
         return optimization_result(
             opt_value=result.fun,
             opt_params=result.x,
-            nit=result.nit,
+            nit=getattr(result, "nit", None),
             nfev=result.nfev,
             history=cost_function.history if self.keep_value_history else [],
         )
