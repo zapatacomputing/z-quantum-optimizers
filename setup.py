@@ -21,11 +21,6 @@ setuptools.setup(
     ),
     install_requires=[
         "z-quantum-core",
-        "pytest>=5.3.5",
-        "marshmallow>=3.4.0",
         "cma==2.7.0",
-        "Werkzeug>=1.0.0",
-        "flask>=1.1.2",
-        "pyyaml==5.3.1",
     ],
 )
