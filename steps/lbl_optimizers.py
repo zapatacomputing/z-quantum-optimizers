@@ -11,7 +11,7 @@ from zquantum.core.serialization import (
     load_optimization_results,
 )
 
-from zquantum.optimizers import LayerwiseAnsatzOptimizer
+from zquantum.optimizers.layerwise_ansatz_test import LayerwiseAnsatzOptimizer
 
 import yaml
 import numpy as np
