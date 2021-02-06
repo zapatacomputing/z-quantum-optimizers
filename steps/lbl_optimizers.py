@@ -32,10 +32,10 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
 ):
     for i in range(number_of_repeats):
         optimize_variational_circuit_with_layerwise_optimizer(
-            ansatz_specs,
-            backend_specs,
-            optimizer_specs,
-            cost_function_specs,
+            ansatz_specs.copy(),
+            backend_specs.copy(),
+            optimizer_specs.copy(),
+            cost_function_specs.copy(),
             qubit_operator,
             max_layer,
             params_min_values,
@@ -75,8 +75,6 @@ def optimize_variational_circuit_with_layerwise_optimizer(
         ansatz_specs_dict = yaml.load(ansatz_specs, Loader=yaml.SafeLoader)
     else:
         ansatz_specs_dict = ansatz_specs
-    print(ansatz_specs)
-    print(ansatz_specs_dict)
 
     if ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
