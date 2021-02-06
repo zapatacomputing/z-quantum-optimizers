@@ -46,13 +46,13 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
         os.rename("optimization-results.json", f"optimization-results-{i}.json")
         os.rename("optimized-parameters.json", f"optimized-parameters-{i}.json")
 
-    final_results_list = []
-    final_parameters_list = []
+    final_results_list = {}
+    final_parameters_list = {}
     for i in range(number_of_repeats):
         results_file = open(f"optimization-results-{i}.json", "r")
         parameters_file = open(f"optimized-parameters-{i}.json", "r")
-        final_results_list.append(yaml.load(results_file, Loader=yaml.SafeLoader))
-        final_parameters_list.append(yaml.load(parameters_file, Loader=yaml.SafeLoader))
+        final_results_list[i] = yaml.load(results_file, Loader=yaml.SafeLoader)
+        final_parameters_list[i] = yaml.load(parameters_file, Loader=yaml.SafeLoader)
 
     with open("optimization-results-list.json", "w") as outfile:
         json.dump(final_results_list, outfile)
