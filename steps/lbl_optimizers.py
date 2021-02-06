@@ -17,6 +17,7 @@ import yaml
 import numpy as np
 import os
 import json
+import copy
 
 
 def repeated_optimize_variational_circuit_with_layerwise_optimizer(
@@ -31,11 +32,12 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
     number_of_repeats,
 ):
     for i in range(number_of_repeats):
+        print("Repeat", i)
         optimize_variational_circuit_with_layerwise_optimizer(
-            ansatz_specs.copy(),
-            backend_specs.copy(),
-            optimizer_specs.copy(),
-            cost_function_specs.copy(),
+            copy.deepcopy(ansatz_specs),
+            copy.deepcopy(backend_specs),
+            copy.deepcopy(optimizer_specs),
+            copy.deepcopy(cost_function_specs),
             qubit_operator,
             max_layer,
             params_min_values,
