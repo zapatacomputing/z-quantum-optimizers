@@ -69,7 +69,7 @@ class LayerwiseAnsatzOptimizer:
 
         initial_params = np.array(initial_params)
 
-        for _ in range(min_layer, max_layer):
+        for _ in range(min_layer, max_layer + 1):
             layer_results = self.inner_optimizer.minimize(cost_function, initial_params)
             optimal_params = layer_results.opt_params
             new_layer_params = [
