@@ -75,6 +75,9 @@ def optimize_variational_circuit_with_layerwise_optimizer(
         ansatz_specs_dict = yaml.load(ansatz_specs, Loader=yaml.SafeLoader)
     else:
         ansatz_specs_dict = ansatz_specs
+    print(ansatz_specs)
+    print(ansatz_specs_dict)
+
     if ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
     else:
