@@ -85,7 +85,7 @@ def optimize_variational_circuit_with_layerwise_optimizer(
         optimizer_specs_dict = yaml.load(optimizer_specs, Loader=yaml.SafeLoader)
     else:
         optimizer_specs_dict = optimizer_specs
-    optimizer = create_object(optimizer_specs_dict, ansatz=ansatz)
+    optimizer = create_object(optimizer_specs_dict)
 
     # Load backend specs
     if isinstance(backend_specs, str):
