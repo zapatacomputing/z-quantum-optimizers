@@ -26,6 +26,7 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
     optimizer_specs,
     cost_function_specs,
     qubit_operator,
+    min_layer,
     max_layer,
     params_min_values,
     params_max_values,
@@ -39,6 +40,7 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
             copy.deepcopy(optimizer_specs),
             copy.deepcopy(cost_function_specs),
             qubit_operator,
+            min_layer,
             max_layer,
             params_min_values,
             params_max_values,
@@ -66,6 +68,7 @@ def optimize_variational_circuit_with_layerwise_optimizer(
     optimizer_specs,
     cost_function_specs,
     qubit_operator,
+    min_layer,
     max_layer,
     params_min_values,
     params_max_values,
@@ -116,7 +119,7 @@ def optimize_variational_circuit_with_layerwise_optimizer(
     lbl_optimizer = LayerwiseAnsatzOptimizer(inner_optimizer=optimizer)
     opt_results = lbl_optimizer.minimize_lbl(
         cost_function,
-        min_layer=1,
+        min_layer=min_layer,
         max_layer=max_layer,
         params_min_values=params_min_values,
         params_max_values=params_max_values,
