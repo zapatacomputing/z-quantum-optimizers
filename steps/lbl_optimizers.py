@@ -13,6 +13,11 @@ from zquantum.core.serialization import (
 
 from zquantum.optimizers import LayerwiseAnsatzOptimizer
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(".").absolute()))
+
 from optimizers import optimize_variational_circuit
 import yaml
 import numpy as np
