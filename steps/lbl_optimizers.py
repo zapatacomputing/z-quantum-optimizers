@@ -61,7 +61,7 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
                 params_max_values,
             )
         else:
-            initial_parameters = np.random.uniform(
+            initial_params = np.random.uniform(
                 low=params_min_values, high=params_max_values, size=max_layer * 2
             )
 
@@ -71,7 +71,7 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
                 copy.deepcopy(optimizer_specs),
                 copy.deepcopy(cost_function_specs),
                 qubit_operator,
-                initial_parameters=initial_parameters,
+                initial_params=initial_params,
             )
 
         if final_value is None or opt_results.opt_value < final_value:
@@ -172,17 +172,13 @@ def optimize_variational_circuit(
     optimizer_specs,
     cost_function_specs,
     qubit_operator,
-    initial_parameters="None",
+    initial_params="None",
     fixed_parameters="None",
     noise_model="None",
     device_connectivity="None",
     parameter_grid="None",
     constraint_operator="None",
 ):
-    if initial_parameters != "None":
-        initial_params = load_circuit_template_params(initial_parameters)
-    else:
-        initial_params = None
 
     if fixed_parameters != "None":
         fixed_params = load_circuit_template_params(fixed_parameters)
