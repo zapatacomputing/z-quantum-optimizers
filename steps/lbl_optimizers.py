@@ -13,7 +13,7 @@ from zquantum.core.serialization import (
 
 from zquantum.optimizers import LayerwiseAnsatzOptimizer
 
-from .optimizers import optimize_variational_circuit
+from optimizers import optimize_variational_circuit
 import yaml
 import numpy as np
 import os
