@@ -13,7 +13,7 @@ from zquantum.core.serialization import (
 
 from zquantum.optimizers import LayerwiseAnsatzOptimizer
 
-from optimizers import optimize_variational_circuit
+from .optimizers import optimize_variational_circuit
 import yaml
 import numpy as np
 import os
@@ -62,9 +62,8 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
                 params_max_values,
             )
         else:
-            # TODO: random.uniform(low=0.0, high=1.0, size=None)
-            initial_params = get_random_parameters(
-                max_layer * 2, params_min_values, params_max_values
+            initial_params = np.random.uniform(
+                low=params_min_values, high=params_max_values, size=max_layer * 2
             )
 
             opt_results = optimize_variational_circuit(
