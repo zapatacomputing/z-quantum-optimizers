@@ -13,11 +13,22 @@ from zquantum.core.serialization import (
 
 from zquantum.optimizers import LayerwiseAnsatzOptimizer
 
+from optimizers import optimize_variational_circuit
 import yaml
 import numpy as np
 import os
 import json
 import copy
+
+
+def get_random_parameters(number_of_params, params_min_values, params_max_values):
+    return np.array(
+        [
+            params_min_values[i]
+            + random.random() * (params_max_values[i] - params_min_values[i])
+            for i in range(number_of_params)
+        ]
+    )
 
 
 def repeated_optimize_variational_circuit_with_layerwise_optimizer(
@@ -31,23 +42,40 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
     params_min_values,
     params_max_values,
     number_of_repeats,
+    use_lbl=True,
 ):
     final_value = None
     final_results = None
 
     for i in range(number_of_repeats):
         print("Repeat", i)
-        opt_results = optimize_variational_circuit_with_layerwise_optimizer(
-            copy.deepcopy(ansatz_specs),
-            copy.deepcopy(backend_specs),
-            copy.deepcopy(optimizer_specs),
-            copy.deepcopy(cost_function_specs),
-            qubit_operator,
-            min_layer,
-            max_layer,
-            params_min_values,
-            params_max_values,
-        )
+        if use_lbl:
+            opt_results = optimize_variational_circuit_with_layerwise_optimizer(
+                copy.deepcopy(ansatz_specs),
+                copy.deepcopy(backend_specs),
+                copy.deepcopy(optimizer_specs),
+                copy.deepcopy(cost_function_specs),
+                qubit_operator,
+                min_layer,
+                max_layer,
+                params_min_values,
+                params_max_values,
+            )
+        else:
+            # TODO: random.uniform(low=0.0, high=1.0, size=None)
+            initial_params = get_random_parameters(
+                max_layer * 2, params_min_values, params_max_values
+            )
+
+            opt_results = optimize_variational_circuit(
+                copy.deepcopy(ansatz_specs),
+                copy.deepcopy(backend_specs),
+                copy.deepcopy(optimizer_specs),
+                copy.deepcopy(cost_function_specs),
+                qubit_operator,
+                initial_params=initial_params,
+            )
+
         if final_value is None or opt_results.opt_value < final_value:
             final_results = opt_results
             final_value = opt_results.opt_value
@@ -82,7 +110,6 @@ def optimize_variational_circuit_with_layerwise_optimizer(
     max_layer,
     params_min_values,
     params_max_values,
-    n_repeats,
 ):
     # Load qubit operator
     operator = load_qubit_operator(qubit_operator)
