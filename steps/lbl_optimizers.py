@@ -32,9 +32,12 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
     params_max_values,
     number_of_repeats,
 ):
+    final_value = None
+    final_results = None
+
     for i in range(number_of_repeats):
         print("Repeat", i)
-        optimize_variational_circuit_with_layerwise_optimizer(
+        opt_results = optimize_variational_circuit_with_layerwise_optimizer(
             copy.deepcopy(ansatz_specs),
             copy.deepcopy(backend_specs),
             copy.deepcopy(optimizer_specs),
@@ -45,6 +48,10 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
             params_min_values,
             params_max_values,
         )
+        if final_value is None or opt_results.opt_value < final_value:
+            final_results = opt_results
+            final_value = opt_results.opt_value
+
         os.rename("optimization-results.json", f"optimization-results-{i}.json")
         os.rename("optimized-parameters.json", f"optimized-parameters-{i}.json")
 
@@ -61,6 +68,9 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
     with open("optimized-parameters-list.json", "w") as outfile:
         json.dump(final_parameters_list, outfile)
 
+    save_optimization_results(final_results, "optimization-results.json")
+    save_circuit_template_params(final_results.opt_params, "optimized-parameters.json")
+
 
 def optimize_variational_circuit_with_layerwise_optimizer(
     ansatz_specs,
@@ -72,6 +82,7 @@ def optimize_variational_circuit_with_layerwise_optimizer(
     max_layer,
     params_min_values,
     params_max_values,
+    n_repeats,
 ):
     # Load qubit operator
     operator = load_qubit_operator(qubit_operator)
@@ -125,5 +136,6 @@ def optimize_variational_circuit_with_layerwise_optimizer(
         params_max_values=params_max_values,
     )
 
-    save_optimization_results(opt_results, "optimization-results.json")
-    save_circuit_template_params(opt_results.opt_params, "optimized-parameters.json")
+    save_optimization_results(final_results, "optimization-results.json")
+    save_circuit_template_params(final_results.opt_params, "optimized-parameters.json")
+    return opt_results
