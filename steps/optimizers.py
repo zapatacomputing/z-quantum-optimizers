@@ -47,7 +47,7 @@ def optimize_variational_circuit(
         ansatz_specs_dict = yaml.load(ansatz_specs, Loader=yaml.SafeLoader)
     else:
         ansatz_specs_dict = ansatz_specs
-    if ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
+    if "QAOA" in ansatz_specs_dict["function_name"]:
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
     else:
         ansatz = create_object(ansatz_specs_dict)
@@ -122,9 +122,9 @@ def optimize_variational_circuit(
         constraints_cost_function_specs["backend"] = backend
         constraints_cost_function_specs["target_operator"] = constraint_op
         constraint_cost_function = create_object(constraints_cost_function_specs)
-        constraint_cost_function_wrapper = lambda params: constraint_cost_function.evaluate(
-            params
-        ).value
+        constraint_cost_function_wrapper = (
+            lambda params: constraint_cost_function.evaluate(params).value
+        )
         constraint_functions = (
             {"type": "eq", "fun": constraint_cost_function_wrapper},
         )
