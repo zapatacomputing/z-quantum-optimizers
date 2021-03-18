@@ -48,10 +48,11 @@ def optimize_variational_circuit(
     else:
         ansatz_specs_dict = ansatz_specs
     if "WarmStartQAOAAnsatz" in ansatz_specs_dict["function_name"]:
+        thetas = np.array(ansatz_specs_dict.pop("thetas"))
         ansatz = create_object(
             ansatz_specs_dict,
             cost_hamiltonian=operator,
-            thetas=np.array(ansatz_specs_dict["thetas"]),
+            thetas=thetas),
         )
     elif "QAOA" in ansatz_specs_dict["function_name"]:
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
