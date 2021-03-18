@@ -47,7 +47,13 @@ def optimize_variational_circuit(
         ansatz_specs_dict = yaml.load(ansatz_specs, Loader=yaml.SafeLoader)
     else:
         ansatz_specs_dict = ansatz_specs
-    if "QAOA" in ansatz_specs_dict["function_name"]:
+    if "WarmStartQAOAAnsatz" in ansatz_specs_dict["function_name"]:
+        ansatz = create_object(
+            ansatz_specs_dict,
+            cost_hamiltonian=operator,
+            thetas=np.array(ansatz_specs_dict["thetas"]),
+        )
+    elif "QAOA" in ansatz_specs_dict["function_name"]:
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
     else:
         ansatz = create_object(ansatz_specs_dict)
