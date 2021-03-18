@@ -6,7 +6,7 @@ from zquantum.core.circuit import (
 )
 from zquantum.core.measurement import load_expectation_values
 from zquantum.core.openfermion import load_qubit_operator
-from zquantum.core.utils import create_object, load_noise_model
+from zquantum.core.utils import create_object, load_noise_model, load_list
 from zquantum.core.serialization import (
     save_optimization_results,
     load_optimization_results,
@@ -48,7 +48,7 @@ def optimize_variational_circuit(
     else:
         ansatz_specs_dict = ansatz_specs
     if "WarmStartQAOAAnsatz" in ansatz_specs_dict["function_name"]:
-        thetas = np.array(ansatz_specs_dict.pop("thetas"))
+        thetas = np.array(load_list(ansatz_specs_dict.pop("thetas")))
         ansatz = create_object(
             ansatz_specs_dict, cost_hamiltonian=operator, thetas=thetas
         )
