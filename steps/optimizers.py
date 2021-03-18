@@ -29,6 +29,7 @@ def optimize_variational_circuit(
     parameter_grid="None",
     constraint_operator="None",
     prior_expectation_values: Optional[str] = None,
+    thetas=None,
 ):
     if initial_parameters != "None":
         initial_params = load_circuit_template_params(initial_parameters)
@@ -48,7 +49,7 @@ def optimize_variational_circuit(
     else:
         ansatz_specs_dict = ansatz_specs
     if "WarmStartQAOAAnsatz" in ansatz_specs_dict["function_name"]:
-        thetas = np.array(load_list(ansatz_specs_dict.pop("thetas")))
+        thetas = np.array(load_list(thetas))
         ansatz = create_object(
             ansatz_specs_dict, cost_hamiltonian=operator, thetas=thetas
         )
