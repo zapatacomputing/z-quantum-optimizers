@@ -4,11 +4,16 @@ from zquantum.core.circuit import (
     load_parameter_grid,
     load_circuit_connectivity,
 )
+from zquantum.core.measurement import load_expectation_values
 from zquantum.core.openfermion import load_qubit_operator
-from zquantum.core.utils import create_object, load_noise_model
-from zquantum.core.serialization import save_optimization_results, load_optimization_results
+from zquantum.core.utils import create_object, load_noise_model, load_list
+from zquantum.core.serialization import (
+    save_optimization_results,
+    load_optimization_results,
+)
 import yaml
 import numpy as np
+from typing import Optional
 
 
 def optimize_variational_circuit(
@@ -23,6 +28,8 @@ def optimize_variational_circuit(
     device_connectivity="None",
     parameter_grid="None",
     constraint_operator="None",
+    prior_expectation_values: Optional[str] = None,
+    thetas=None,
 ):
     if initial_parameters != "None":
         initial_params = load_circuit_template_params(initial_parameters)
@@ -41,7 +48,12 @@ def optimize_variational_circuit(
         ansatz_specs_dict = yaml.load(ansatz_specs, Loader=yaml.SafeLoader)
     else:
         ansatz_specs_dict = ansatz_specs
-    if ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
+    if "WarmStartQAOAAnsatz" in ansatz_specs_dict["function_name"]:
+        thetas = np.array(load_list(thetas))
+        ansatz = create_object(
+            ansatz_specs_dict, cost_hamiltonian=operator, thetas=thetas
+        )
+    elif "QAOA" in ansatz_specs_dict["function_name"]:
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
     else:
         ansatz = create_object(ansatz_specs_dict)
@@ -51,7 +63,7 @@ def optimize_variational_circuit(
         grid = load_parameter_grid(parameter_grid)
     else:
         grid = None
-    
+
     # Load optimizer specs
     if isinstance(optimizer_specs, str):
         optimizer_specs_dict = yaml.load(optimizer_specs, Loader=yaml.SafeLoader)
@@ -80,7 +92,9 @@ def optimize_variational_circuit(
 
     # Load cost function specs
     if isinstance(cost_function_specs, str):
-        cost_function_specs_dict = yaml.load(cost_function_specs, Loader=yaml.SafeLoader)
+        cost_function_specs_dict = yaml.load(
+            cost_function_specs, Loader=yaml.SafeLoader
+        )
     else:
         cost_function_specs_dict = cost_function_specs
     estimator_specs = cost_function_specs_dict.pop("estimator-specs", None)
@@ -92,9 +106,17 @@ def optimize_variational_circuit(
     cost_function_specs_dict["fixed_parameters"] = fixed_params
     cost_function = create_object(cost_function_specs_dict)
 
+    if prior_expectation_values is not None:
+        if isinstance(prior_expectation_values, str):
+            cost_function.estimator.prior_expectation_values = load_expectation_values(
+                prior_expectation_values
+            )
+
     if constraint_operator != "None":
         constraint_op = load_qubit_operator(constraint_operator)
-        constraints_cost_function_specs = yaml.load(cost_function_specs, Loader=yaml.SafeLoader)
+        constraints_cost_function_specs = yaml.load(
+            cost_function_specs, Loader=yaml.SafeLoader
+        )
         constraints_estimator_specs = constraints_cost_function_specs.pop(
             "estimator-specs", None
         )
