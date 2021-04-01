@@ -5,7 +5,7 @@ from zquantum.core.circuit import (
     load_circuit_connectivity,
 )
 from zquantum.core.openfermion import load_qubit_operator
-from zquantum.core.utils import create_object, load_noise_model
+from zquantum.core.utils import create_object, load_noise_model, load_list
 from zquantum.core.serialization import (
     save_optimization_results,
     load_optimization_results,
@@ -42,6 +42,7 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
     params_max_values,
     number_of_repeats,
     use_lbl=True,
+    thetas=None,
 ):
     final_value = None
     final_results = None
@@ -59,6 +60,7 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
                 max_layer,
                 params_min_values,
                 params_max_values,
+                thetas,
             )
         else:
             initial_params = np.random.uniform(
@@ -72,6 +74,7 @@ def repeated_optimize_variational_circuit_with_layerwise_optimizer(
                 copy.deepcopy(cost_function_specs),
                 qubit_operator,
                 initial_params=initial_params,
+                thetas=thetas,
             )
 
         if final_value is None or opt_results.opt_value < final_value:
@@ -108,6 +111,7 @@ def optimize_variational_circuit_with_layerwise_optimizer(
     max_layer,
     params_min_values,
     params_max_values,
+    thetas=None,
 ):
     # Load qubit operator
     operator = load_qubit_operator(qubit_operator)
@@ -117,7 +121,12 @@ def optimize_variational_circuit_with_layerwise_optimizer(
     else:
         ansatz_specs_dict = ansatz_specs
 
-    if ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
+    if "WarmStartQAOAAnsatz" in ansatz_specs_dict["function_name"]:
+        thetas = np.array(load_list(thetas))
+        ansatz = create_object(
+            ansatz_specs_dict, cost_hamiltonian=operator, thetas=thetas
+        )
+    elif ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
     else:
         ansatz = create_object(ansatz_specs_dict)
@@ -178,6 +187,7 @@ def optimize_variational_circuit(
     device_connectivity="None",
     parameter_grid="None",
     constraint_operator="None",
+    thetas=None,
 ):
 
     if fixed_parameters != "None":
@@ -192,7 +202,12 @@ def optimize_variational_circuit(
         ansatz_specs_dict = yaml.load(ansatz_specs, Loader=yaml.SafeLoader)
     else:
         ansatz_specs_dict = ansatz_specs
-    if ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
+    if "WarmStartQAOAAnsatz" in ansatz_specs_dict["function_name"]:
+        thetas = np.array(load_list(thetas))
+        ansatz = create_object(
+            ansatz_specs_dict, cost_hamiltonian=operator, thetas=thetas
+        )
+    elif ansatz_specs_dict["function_name"] == "QAOAFarhiAnsatz":
         ansatz = create_object(ansatz_specs_dict, cost_hamiltonian=operator)
     else:
         ansatz = create_object(ansatz_specs_dict)
