@@ -6,7 +6,7 @@ from zquantum.core.interfaces.optimizer_test import (
     rosenbrock_function,
     sum_x_squared,
 )
-from .scipy_optimizer import ScipyOptimizer
+from zquantum.optimizers.scipy_optimizer import ScipyOptimizer
 import pytest
 
 
