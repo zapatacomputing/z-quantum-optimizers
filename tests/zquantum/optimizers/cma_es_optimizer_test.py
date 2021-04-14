@@ -1,7 +1,7 @@
 import pytest
 from zquantum.core.interfaces.optimizer_test import OptimizerTests
 from zquantum.core.interfaces.mock_objects import mock_cost_function
-from .cma_es_optimizer import CMAESOptimizer
+from zquantum.optimizers.cma_es_optimizer import CMAESOptimizer
 
 
 @pytest.fixture(scope="function", params=[{"options": {"sigma_0": 0.1}}])
