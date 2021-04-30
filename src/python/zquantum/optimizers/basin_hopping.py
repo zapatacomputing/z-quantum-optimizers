@@ -1,7 +1,6 @@
 from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
 from zquantum.core.history.recorder import recorder
-from typing import Optional, Tuple, Callable, Dict, Union
-import scipy
+from typing import Callable, Dict, Union
 import scipy.optimize
 
 
@@ -17,19 +16,20 @@ class BasinHoppingOptimizer(Optimizer):
         accept_test: Union[Callable, None] = None,
         interval: int = 50,
         disp: bool = False,
-        niter_success: Union[int, None] = None
+        niter_success: Union[int, None] = None,
     ):
         """
         Args:
-            method(from zquantum.core.circuit.ParameterGrid): object defining for which parameters we want do the evaluations
-            constraints(Tuple[Dict[str, Callable]]): List of constraints in the scipy format.
-            options(dict): dictionary with additional options for the optimizer.
-
-        Supported values for the options dictionary:
-        Options:
-            keep_value_history(bool): boolean flag indicating whether the history of evaluations should be stored or not.
-            **kwargs: options specific for particular scipy optimizers.
-
+            keep_value_history: determines whether or not the cost function records when it is evaluated
+            niter: See scipy.optimize.basinhopping
+            T: See scipy.optimize.basinhopping
+            stepsize: See scipy.optimize.basinhopping
+            minimizer_kwargs: See scipy.optimize.basinhopping
+            take_step: See scipy.optimize.basinhopping
+            accept_test: See scipy.optimize.basinhopping
+            interval: See scipy.optimize.basinhopping
+            disp: See scipy.optimize.basinhopping
+            niter_success: See scipy.optimize.basinhopping
         """
         self.keep_value_history = keep_value_history
         self.niter = niter
@@ -42,10 +42,9 @@ class BasinHoppingOptimizer(Optimizer):
         self.disp = disp
         self.niter_success = niter_success
 
-
     def minimize(self, cost_function, initial_params=None, callback=None):
         """
-        Minimizes given cost function using functions from scipy.minimize.
+        Minimizes given cost function using functions from scipy.optimize.basinhopping.
 
         Args:
             cost_function(): python method which takes numpy.ndarray as input
@@ -64,6 +63,9 @@ class BasinHoppingOptimizer(Optimizer):
             getattr(cost_function, "gradient")
         ):
             jacobian = cost_function.gradient
+        if self.minimizer_kwargs is not None:
+            if self.minimizer_kwargs.get("options", None) is not None:
+                self.minimizer_kwargs["options"]["jacobian"] = jacobian
 
         result = scipy.optimize.basinhopping(
             cost_function,
@@ -76,7 +78,7 @@ class BasinHoppingOptimizer(Optimizer):
             accept_test=self.accept_test,
             interval=self.interval,
             disp=self.disp,
-            niter_success=self.niter_success
+            niter_success=self.niter_success,
         )
 
         opt_value = result.fun
