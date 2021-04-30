@@ -18,7 +18,10 @@ class BasinHoppingOptimizer(Optimizer):
         disp: bool = False,
         niter_success: Union[int, None] = None,
     ):
-        """
+        """The BasinHoppingOptimizer utilizes the scipy.optimize.basinhopping method
+        (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html). It is intended
+        to be used in conjunction with methods of scipy.optimize.minimize for local optimization.
+
         Args:
             keep_value_history: determines whether or not the cost function records when it is evaluated
             niter: See scipy.optimize.basinhopping
