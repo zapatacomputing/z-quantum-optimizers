@@ -5,6 +5,7 @@ from zquantum.core.circuit import (
     load_circuit_connectivity,
 )
 from zquantum.core.measurement import load_expectation_values
+from zquantum.core.estimation import estimate_expectation_values_by_averaging
 from zquantum.core.openfermion import load_qubit_operator
 from zquantum.core.utils import create_object, load_noise_model, load_list
 from zquantum.core.serialization import (
@@ -14,6 +15,7 @@ from zquantum.core.serialization import (
 import yaml
 import numpy as np
 from typing import Optional
+import warnings
 
 
 def optimize_variational_circuit(
@@ -31,6 +33,10 @@ def optimize_variational_circuit(
     prior_expectation_values: Optional[str] = None,
     thetas=None,
 ):
+    warnings.warn(
+        "optimize_variational_circuit will be depreciated in favor of optimize_ansatz_based_cost_function in steps/optimize.py in z-quantum-core.",
+        DeprecationWarning,
+    )
     if initial_parameters != "None":
         initial_params = load_circuit_template_params(initial_parameters)
     else:
@@ -97,9 +103,33 @@ def optimize_variational_circuit(
         )
     else:
         cost_function_specs_dict = cost_function_specs
-    estimator_specs = cost_function_specs_dict.pop("estimator-specs", None)
-    if estimator_specs is not None:
-        cost_function_specs_dict["estimator"] = create_object(estimator_specs)
+    estimation_method_specs = cost_function_specs_dict.pop(
+        "estimation_method_specs", None
+    )
+
+    if estimation_method_specs is not None:
+        if isinstance(estimation_method_specs, str):
+            estimation_method_specs = yaml.loads(estimation_method_specs)
+        estimation_method = create_object(estimation_method_specs)
+    else:
+        estimation_method = estimate_expectation_values_by_averaging
+    cost_function_specs_dict["estimation_method"] = estimation_method
+
+    estimation_preprocessors_specs_list = cost_function_specs_dict.pop(
+        "estimation_preprocessors_specs", None
+    )
+    if estimation_preprocessors_specs_list is not None:
+        estimation_preprocessors = []
+        for estimation_preprocessor_specs in estimation_preprocessors_specs_list:
+            if isinstance(estimation_preprocessor_specs, str):
+                estimation_preprocessor_specs = yaml.loads(
+                    estimation_preprocessor_specs
+                )
+            estimation_preprocessors.append(
+                create_object(estimation_preprocessor_specs)
+            )
+        cost_function_specs_dict["estimation_preprocessors"] = estimation_preprocessors
+
     cost_function_specs_dict["target_operator"] = operator
     cost_function_specs_dict["ansatz"] = ansatz
     cost_function_specs_dict["backend"] = backend
