@@ -1,10 +1,11 @@
-import unittest
 import numpy as np
 import pytest
 from scipy.optimize import OptimizeResult
-from zquantum.core.circuit import ParameterGrid
 from zquantum.core.interfaces.optimizer_test import OptimizerTests
-from zquantum.optimizers.grid_search import GridSearchOptimizer
+from zquantum.optimizers.grid_search import (
+    GridSearchOptimizer,
+    ParameterGrid,
+)
 
 
 @pytest.fixture(params=[ParameterGrid([[0, 1.5, 0.1], [0, 1.5, 0.1]])])
@@ -13,7 +14,6 @@ def optimizer(request):
 
 
 class TestGridSearchOptimizer(OptimizerTests):
-
     def test_get_values_grid(self):
         # Given
         param_ranges = [(0, 1.1, 0.5)] * 2
