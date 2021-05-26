@@ -1,6 +1,9 @@
 import os
-from zquantum.optimizers.serialization import save_parameter_grid, load_parameter_grid
-from zquantum.optimizers.grid_search import ParameterGrid
+from zquantum.optimizers.grid_search import (
+    ParameterGrid,
+    save_parameter_grid,
+    load_parameter_grid,
+)
 
 
 def test_parameter_grid_io():

@@ -1,4 +1,4 @@
-from .grid_search import ParameterGrid
+from ._parameter_grid import ParameterGrid
 from zquantum.core.utils import SCHEMA_VERSION
 from zquantum.core.typing import Writeable
 import json
