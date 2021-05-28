@@ -1,6 +1,10 @@
 from zquantum.core.history.recorder import recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
-from zquantum.core.interfaces.optimizer import Optimizer, optimization_result, construct_history_info
+from zquantum.core.interfaces.optimizer import (
+    Optimizer,
+    optimization_result,
+    construct_history_info,
+)
 from ._parameter_grid import ParameterGrid
 from scipy.optimize import OptimizeResult
 from typing import Dict, Optional

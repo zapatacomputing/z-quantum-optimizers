@@ -10,19 +10,20 @@ from zquantum.optimizers.scipy_optimizer import ScipyOptimizer
 import pytest
 
 
-@pytest.fixture(params=[
-    {"method": "BFGS"},
-    {"method": "L-BFGS-B"},
-    {"method": "Nelder-Mead"},
-    {"method": "SLSQP"},
-    {"method": "COBYLA", "options": {"maxiter": 50000, "tol": 1e-7}}
-])
+@pytest.fixture(
+    params=[
+        {"method": "BFGS"},
+        {"method": "L-BFGS-B"},
+        {"method": "Nelder-Mead"},
+        {"method": "SLSQP"},
+        {"method": "COBYLA", "options": {"maxiter": 50000, "tol": 1e-7}},
+    ]
+)
 def optimizer(request):
     return ScipyOptimizer(**request.param)
 
 
 class TestScipyOptimizer(OptimizerTests):
-
     def test_SLSQP_with_equality_constraints(self):
         # Given
         cost_function = FunctionWithGradient(
@@ -62,5 +63,7 @@ class TestScipyOptimizer(OptimizerTests):
         )
 
         # Then
-        assert results_without_constraints.opt_value == pytest.approx(results_with_constraints.opt_value, abs=1e-1)
+        assert results_without_constraints.opt_value == pytest.approx(
+            results_with_constraints.opt_value, abs=1e-1
+        )
         assert results_with_constraints.opt_params.sum() >= 3

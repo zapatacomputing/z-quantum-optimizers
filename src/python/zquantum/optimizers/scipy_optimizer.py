@@ -1,4 +1,8 @@
-from zquantum.core.interfaces.optimizer import Optimizer, optimization_result, construct_history_info
+from zquantum.core.interfaces.optimizer import (
+    Optimizer,
+    optimization_result,
+    construct_history_info,
+)
 from zquantum.core.history.recorder import recorder
 from typing import Optional, Tuple, Callable, Dict
 import scipy
