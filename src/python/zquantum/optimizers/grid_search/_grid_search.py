@@ -1,6 +1,10 @@
 from zquantum.core.history.recorder import recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
-from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
+from zquantum.core.interfaces.optimizer import (
+    Optimizer,
+    optimization_result,
+    construct_history_info,
+)
 from ._parameter_grid import ParameterGrid
 from scipy.optimize import OptimizeResult
 from typing import Dict, Optional
@@ -62,7 +66,7 @@ class GridSearchOptimizer(Optimizer):
             opt_params=optimal_params,
             nfev=nfev,
             nit=None,
-            history=cost_function.history if self.keep_value_history else [],
+            **construct_history_info(cost_function, self.keep_value_history)
         )
 
     def get_values_grid(self, optimization_results: OptimizeResult) -> np.ndarray:
