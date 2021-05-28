@@ -1,4 +1,4 @@
-from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
+from zquantum.core.interfaces.optimizer import Optimizer, optimization_result, construct_history_info
 from zquantum.core.history.recorder import recorder
 from typing import Callable, Dict, Union
 import scipy.optimize
@@ -95,5 +95,5 @@ class BasinHoppingOptimizer(Optimizer):
             opt_params=opt_params,
             nit=nit,
             nfev=nfev,
-            history=cost_function.history if self.keep_value_history else [],
+            **construct_history_info(cost_function, self.keep_value_history)
         )
