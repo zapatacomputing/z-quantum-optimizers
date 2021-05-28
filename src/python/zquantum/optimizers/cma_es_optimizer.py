@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 from zquantum.core.history.recorder import recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
-from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
+from zquantum.core.interfaces.optimizer import Optimizer, optimization_result, construct_history_info
 from scipy.optimize import OptimizeResult
 import cma
 
@@ -37,6 +37,10 @@ class CMAESOptimizer(Optimizer):
                 "CMA-ES always keeps track of the history, regardless of the keep_value_history flag."
             )
 
+    @property
+    def keep_value_history(self):
+        return True
+
     def minimize(
         self, cost_function: CallableWithGradient, initial_params: np.ndarray
     ) -> OptimizeResult:
@@ -61,8 +65,8 @@ class CMAESOptimizer(Optimizer):
         return optimization_result(
             opt_value=result.fbest,
             opt_params=result.xbest,
-            history=cost_function.history,
             nfev=result.evaluations,
             nit=result.iterations,
             cma_xfavorite=list(result.xfavorite),
+            **construct_history_info(cost_function, self.keep_value_history)
         )
