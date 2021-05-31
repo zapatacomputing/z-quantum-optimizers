@@ -2,7 +2,7 @@ from zquantum.optimizers.grid_search import load_parameter_grid
 
 from zquantum.core.serialization import save_array, load_array
 
-from zquantum.core.wip.circuits.layouts import load_circuit_connectivity
+from zquantum.core.circuits.layouts import load_circuit_connectivity
 from zquantum.core.measurement import load_expectation_values
 from zquantum.core.estimation import estimate_expectation_values_by_averaging
 from zquantum.core.openfermion import load_qubit_operator
