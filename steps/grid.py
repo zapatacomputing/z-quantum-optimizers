@@ -3,7 +3,7 @@ from zquantum.core.typing import Specs
 import numpy as np
 from zquantum.core.utils import load_from_specs
 from zquantum.optimizers.grid_search import (
-    build_uniform_param_grid,
+    build_uniform_param_grid as _build_uniform_param_grid,
     save_parameter_grid,
 )
 
@@ -16,8 +16,6 @@ def build_uniform_param_grid(
     max_value: float = 2 * np.pi,
     step: float = np.pi / 5,
 ):
-    print("ANSATZ", ansatz_specs)
-    print("NPAR", number_of_params_per_layer)
     assert (ansatz_specs is None) != (number_of_params_per_layer is None)
 
     if ansatz_specs is not None:
@@ -26,7 +24,7 @@ def build_uniform_param_grid(
     else:
         number_of_params = number_of_params_per_layer
 
-    grid = build_uniform_param_grid(
+    grid = _build_uniform_param_grid(
         number_of_params, number_of_layers, min_value, max_value, step
     )
     save_parameter_grid(grid, "parameter-grid.json")
