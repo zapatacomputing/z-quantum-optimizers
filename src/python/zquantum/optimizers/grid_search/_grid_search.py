@@ -12,31 +12,18 @@ import numpy as np
 
 
 class GridSearchOptimizer(Optimizer):
-    def __init__(self, grid: ParameterGrid, options: Optional[Dict] = None):
+    def __init__(self, grid: ParameterGrid):
         """
         Args:
             grid: object defining for which parameters we want do the evaluations
-            options: dictionary with additional options for the optimizer.
-
-        Supported values for the options dictionary:
-        Options:
-            keep_value_history: boolean flag indicating whether the history of evaluations should be stored or not.
-
         """
-        if options is None:
-            options = {}
-        self.options = options
         self.grid = grid
-        if "keep_value_history" not in self.options.keys():
-            self.keep_value_history = False
-        else:
-            self.keep_value_history = self.options["keep_value_history"]
-            del self.options["keep_value_history"]
 
     def minimize(
         self,
         cost_function: CallableWithGradient,
         initial_params: Optional[np.ndarray] = None,
+        keep_history: bool = False,
     ) -> OptimizeResult:
         """
         Finds the parameters which minimize given cost function, by trying all the parameters from the grid.
@@ -44,14 +31,17 @@ class GridSearchOptimizer(Optimizer):
         Args:
             cost_function: object representing cost function we want to minimize
             inital_params: initial parameters for the cost function
+            keep_history: flag indicating whether history of cost function
+                evaluations should be recorded.
+
         """
         if initial_params is not None and len(initial_params) != 0:
             Warning("Grid search doesn't use initial parameters, they will be ignored.")
-        history = []
+
         min_value = None
         nfev = 0
 
-        if self.keep_value_history:
+        if keep_history:
             cost_function = recorder(cost_function)
 
         for params in self.grid.params_list:
@@ -66,7 +56,7 @@ class GridSearchOptimizer(Optimizer):
             opt_params=optimal_params,
             nfev=nfev,
             nit=None,
-            **construct_history_info(cost_function, self.keep_value_history)
+            **construct_history_info(cost_function, keep_history)
         )
 
     def get_values_grid(self, optimization_results: OptimizeResult) -> np.ndarray:

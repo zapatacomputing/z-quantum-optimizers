@@ -1,17 +1,17 @@
+import numpy as np
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
     optimization_result,
     construct_history_info,
 )
-from zquantum.core.history.recorder import recorder
-from typing import Callable, Dict, Union
+from zquantum.core.history.recorder import recorder, CallableWithGradient
+from typing import Callable, Union
 import scipy.optimize
 
 
 class BasinHoppingOptimizer(Optimizer):
     def __init__(
         self,
-        keep_value_history: bool = False,
         niter: int = 100,
         T: float = 1.0,
         stepsize: float = 0.5,
@@ -27,7 +27,6 @@ class BasinHoppingOptimizer(Optimizer):
         to be used in conjunction with methods of scipy.optimize.minimize for local optimization.
 
         Args:
-            keep_value_history: determines whether or not the cost function records when it is evaluated
             niter: See scipy.optimize.basinhopping
             T: See scipy.optimize.basinhopping
             stepsize: See scipy.optimize.basinhopping
@@ -38,7 +37,7 @@ class BasinHoppingOptimizer(Optimizer):
             disp: See scipy.optimize.basinhopping
             niter_success: See scipy.optimize.basinhopping
         """
-        self.keep_value_history = keep_value_history
+
         self.niter = niter
         self.T = T
         self.stepsize = stepsize
@@ -49,20 +48,23 @@ class BasinHoppingOptimizer(Optimizer):
         self.disp = disp
         self.niter_success = niter_success
 
-    def minimize(self, cost_function, initial_params=None, callback=None):
+    def minimize(
+        self,
+        cost_function: CallableWithGradient,
+        initial_params: np.ndarray = None,
+        keep_history: bool = False,
+    ):
         """
         Minimizes given cost function using functions from scipy.optimize.basinhopping.
 
         Args:
             cost_function(): python method which takes numpy.ndarray as input
             initial_params(np.ndarray): initial parameters to be used for optimization
-            callback(): callback function. If none is provided, a default one will be used.
-
-        Returns:
-            optimization_results(scipy.optimize.OptimizeResults): results of the optimization.
+            keep_history: flag indicating whether history of cost function
+                evaluations should be recorded.
         """
 
-        if self.keep_value_history:
+        if keep_history:
             cost_function = recorder(cost_function)
 
         jacobian = None
@@ -70,9 +72,11 @@ class BasinHoppingOptimizer(Optimizer):
             getattr(cost_function, "gradient")
         ):
             jacobian = cost_function.gradient
-        if self.minimizer_kwargs is not None:
-            if self.minimizer_kwargs.get("options", None) is not None:
-                self.minimizer_kwargs["options"]["jacobian"] = jacobian
+        if (
+            self.minimizer_kwargs is not None
+            and self.minimizer_kwargs.get("options", None) is not None
+        ):
+            self.minimizer_kwargs["options"]["jacobian"] = jacobian
 
         result = scipy.optimize.basinhopping(
             cost_function,
@@ -99,5 +103,5 @@ class BasinHoppingOptimizer(Optimizer):
             opt_params=opt_params,
             nit=nit,
             nfev=nfev,
-            **construct_history_info(cost_function, self.keep_value_history)
+            **construct_history_info(cost_function, keep_history)
         )
