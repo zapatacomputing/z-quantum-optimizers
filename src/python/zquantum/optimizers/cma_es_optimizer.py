@@ -6,6 +6,7 @@ from zquantum.core.interfaces.optimizer import (
     optimization_result,
     construct_history_info,
 )
+from zquantum.core.typing import RecorderFactory
 from scipy.optimize import OptimizeResult
 import cma
 from typing import Dict, Optional
@@ -13,7 +14,10 @@ from typing import Dict, Optional
 
 class CMAESOptimizer(Optimizer):
     def __init__(
-        self, sigma_0: float, options: Optional[Dict] = None, recorder=_recorder
+        self,
+        sigma_0: float,
+        options: Optional[Dict] = None,
+        recorder: RecorderFactory = _recorder,
     ):
         """
         Integration with CMA-ES optimizer: https://github.com/CMA-ES/pycma .

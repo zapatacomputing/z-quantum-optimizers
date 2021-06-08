@@ -4,7 +4,10 @@ from zquantum.core.interfaces.optimizer import (
     optimization_result,
     construct_history_info,
 )
-from zquantum.core.history.recorder import recorder as _recorder, CallableWithGradient
+from zquantum.core.interfaces.functions import CallableWithGradient
+from zquantum.core.history.recorder import recorder as _recorder
+from zquantum.core.typing import RecorderFactory
+
 from typing import Callable, Union
 import scipy.optimize
 
@@ -21,7 +24,7 @@ class BasinHoppingOptimizer(Optimizer):
         interval: int = 50,
         disp: bool = False,
         niter_success: Union[int, None] = None,
-        recorder=_recorder,
+        recorder: RecorderFactory = _recorder,
     ):
         """The BasinHoppingOptimizer utilizes the scipy.optimize.basinhopping method
         (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html). It is intended

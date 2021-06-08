@@ -5,14 +5,20 @@ from zquantum.core.interfaces.optimizer import (
     optimization_result,
     construct_history_info,
 )
+from zquantum.core.typing import RecorderFactory
+
 from ._parameter_grid import ParameterGrid
 from scipy.optimize import OptimizeResult
-from typing import Dict, Optional
+from typing import Optional
 import numpy as np
 
 
 class GridSearchOptimizer(Optimizer):
-    def __init__(self, grid: ParameterGrid, recorder=_recorder):
+    def __init__(
+        self,
+        grid: ParameterGrid,
+        recorder: RecorderFactory = _recorder,
+    ):
         """
         Args:
             grid: object defining for which parameters we want do the evaluations

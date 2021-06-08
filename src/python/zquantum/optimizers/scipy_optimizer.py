@@ -6,6 +6,7 @@ from zquantum.core.interfaces.optimizer import (
 )
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
+from zquantum.core.typing import RecorderFactory
 from typing import Optional, Tuple, Callable, Dict
 import scipy
 
@@ -16,7 +17,7 @@ class ScipyOptimizer(Optimizer):
         method: str,
         constraints: Optional[Tuple[Dict[str, Callable]]] = None,
         options: Optional[Dict] = None,
-        recorder=_recorder,
+        recorder: RecorderFactory = _recorder,
     ):
         """
         Args:
