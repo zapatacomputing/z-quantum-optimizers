@@ -1,67 +1,60 @@
-from copy import deepcopy
-
 import numpy as np
-from zquantum.core.history.recorder import recorder
+from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
     optimization_result,
     construct_history_info,
 )
+from zquantum.core.typing import RecorderFactory
 from scipy.optimize import OptimizeResult
 import cma
+from typing import Dict, Optional
 
 
 class CMAESOptimizer(Optimizer):
-    def __init__(self, options):
+    def __init__(
+        self,
+        sigma_0: float,
+        options: Optional[Dict] = None,
+        recorder: RecorderFactory = _recorder,
+    ):
         """
+        Integration with CMA-ES optimizer: https://github.com/CMA-ES/pycma .
         Args:
-            options(dict): dictionary with options for the optimizer.
-
-        Supported values for the options dictionary:
-        Options:
-            sigma_0(float): initial standard deviation. Required option
-            keep_value_history(bool): boolean flag indicating whether the history of evaluations should be stored or not.
-            **kwargs: other options, please refer to https://github.com/CMA-ES/pycma documentation.
-
+            sigma_0: please refer to https://github.com/CMA-ES/pycma documentation.
+            options: dictionary with options for the optimizer,
+                please refer to https://github.com/CMA-ES/pycma documentation.
+            recorder: recorder object which defines how to store the optimization history.
         """
-        options = deepcopy(options)
-        if "sigma_0" not in options.keys():
-            raise RuntimeError(
-                'Error: CMAESOptimizer input options dictionary must contain "sigma_0" field'
-            )
-        else:
-            self.sigma_0 = options.pop("sigma_0")
+        super().__init__(recorder=recorder)
+        self.sigma_0 = sigma_0
+        if options is None:
+            options = {}
         self.options = options
 
-        if "keep_value_history" in self.options.keys():
-            del self.options["keep_value_history"]
-            Warning(
-                "CMA-ES always keeps track of the history, regardless of the keep_value_history flag."
-            )
-
-    @property
-    def keep_value_history(self):
-        return True
-
-    def minimize(
-        self, cost_function: CallableWithGradient, initial_params: np.ndarray
+    def _minimize(
+        self,
+        cost_function: CallableWithGradient,
+        initial_params: np.ndarray,
+        keep_history: bool = False,
     ) -> OptimizeResult:
         """Minimize using the Covariance Matrix Adaptation Evolution Strategy
         (CMA-ES).
 
+        Note:
+            Original CMA-ES implementation stores optimization history by default.
+            This is a separate mechanism from the one controlled by recorder, and
+            therefore is turned on even if keep_history is set to false, which might
+            lead to memory issues in some extreme cases.
+            However, we expose only the recording performed using provided recorder.
+
         Args:
             cost_function: object representing cost function we want to minimize
             initial_params: initial guess for the ansatz parameters.
-
-        Returns:
-            tuple: A tuple containing an optimization results dict and a numpy array
-                with the optimized parameters.
+            keep_history: flag indicating whether history of cost function
+                evaluations should be recorded.
         """
-
-        # Optimization Results Object
-        cost_function = recorder(cost_function)
-
         strategy = cma.CMAEvolutionStrategy(initial_params, self.sigma_0, self.options)
         result = strategy.optimize(cost_function).result
 
@@ -71,5 +64,5 @@ class CMAESOptimizer(Optimizer):
             nfev=result.evaluations,
             nit=result.iterations,
             cma_xfavorite=list(result.xfavorite),
-            **construct_history_info(cost_function, self.keep_value_history)
+            **construct_history_info(cost_function, keep_history)
         )

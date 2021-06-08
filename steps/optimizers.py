@@ -30,6 +30,7 @@ def optimize_variational_circuit(
     parameter_grid="None",
     constraint_operator="None",
     prior_expectation_values: Optional[str] = None,
+    keep_history=False,
     thetas=None,
 ):
     warnings.warn(
@@ -165,7 +166,7 @@ def optimize_variational_circuit(
         )
         optimizer.constraints = constraint_functions
 
-    opt_results = optimizer.minimize(cost_function, initial_params)
+    opt_results = optimizer.minimize(cost_function, initial_params, keep_history)
 
     save_optimization_results(opt_results, "optimization-results.json")
     save_array(opt_results.opt_params, "optimized-parameters.json")

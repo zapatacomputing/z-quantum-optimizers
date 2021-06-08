@@ -1,42 +1,37 @@
-from zquantum.core.history.recorder import recorder
+from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
     optimization_result,
     construct_history_info,
 )
+from zquantum.core.typing import RecorderFactory
+
 from ._parameter_grid import ParameterGrid
 from scipy.optimize import OptimizeResult
-from typing import Dict, Optional
+from typing import Optional
 import numpy as np
 
 
 class GridSearchOptimizer(Optimizer):
-    def __init__(self, grid: ParameterGrid, options: Optional[Dict] = None):
+    def __init__(
+        self,
+        grid: ParameterGrid,
+        recorder: RecorderFactory = _recorder,
+    ):
         """
         Args:
             grid: object defining for which parameters we want do the evaluations
-            options: dictionary with additional options for the optimizer.
-
-        Supported values for the options dictionary:
-        Options:
-            keep_value_history: boolean flag indicating whether the history of evaluations should be stored or not.
-
+            recorder: recorder object which defines how to store the optimization history.
         """
-        if options is None:
-            options = {}
-        self.options = options
+        super().__init__(recorder=recorder)
         self.grid = grid
-        if "keep_value_history" not in self.options.keys():
-            self.keep_value_history = False
-        else:
-            self.keep_value_history = self.options["keep_value_history"]
-            del self.options["keep_value_history"]
 
-    def minimize(
+    def _minimize(
         self,
         cost_function: CallableWithGradient,
         initial_params: Optional[np.ndarray] = None,
+        keep_history: bool = False,
     ) -> OptimizeResult:
         """
         Finds the parameters which minimize given cost function, by trying all the parameters from the grid.
@@ -44,15 +39,15 @@ class GridSearchOptimizer(Optimizer):
         Args:
             cost_function: object representing cost function we want to minimize
             inital_params: initial parameters for the cost function
+            keep_history: flag indicating whether history of cost function
+                evaluations should be recorded.
+
         """
         if initial_params is not None and len(initial_params) != 0:
             Warning("Grid search doesn't use initial parameters, they will be ignored.")
-        history = []
+
         min_value = None
         nfev = 0
-
-        if self.keep_value_history:
-            cost_function = recorder(cost_function)
 
         for params in self.grid.params_list:
             value = cost_function(params)
@@ -66,7 +61,7 @@ class GridSearchOptimizer(Optimizer):
             opt_params=optimal_params,
             nfev=nfev,
             nit=None,
-            **construct_history_info(cost_function, self.keep_value_history)
+            **construct_history_info(cost_function, keep_history)
         )
 
     def get_values_grid(self, optimization_results: OptimizeResult) -> np.ndarray:
