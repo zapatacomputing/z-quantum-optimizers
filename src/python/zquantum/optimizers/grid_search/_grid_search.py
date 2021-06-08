@@ -1,4 +1,4 @@
-from zquantum.core.history.recorder import recorder
+from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
@@ -12,14 +12,16 @@ import numpy as np
 
 
 class GridSearchOptimizer(Optimizer):
-    def __init__(self, grid: ParameterGrid):
+    def __init__(self, grid: ParameterGrid, recorder=_recorder):
         """
         Args:
             grid: object defining for which parameters we want do the evaluations
+            recorder: recorder object which defines how to store the optimization history.
         """
+        super().__init__(recorder=recorder)
         self.grid = grid
 
-    def minimize(
+    def _minimize(
         self,
         cost_function: CallableWithGradient,
         initial_params: Optional[np.ndarray] = None,
@@ -40,9 +42,6 @@ class GridSearchOptimizer(Optimizer):
 
         min_value = None
         nfev = 0
-
-        if keep_history:
-            cost_function = recorder(cost_function)
 
         for params in self.grid.params_list:
             value = cost_function(params)

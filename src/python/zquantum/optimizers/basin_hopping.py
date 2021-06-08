@@ -4,7 +4,7 @@ from zquantum.core.interfaces.optimizer import (
     optimization_result,
     construct_history_info,
 )
-from zquantum.core.history.recorder import recorder, CallableWithGradient
+from zquantum.core.history.recorder import recorder as _recorder, CallableWithGradient
 from typing import Callable, Union
 import scipy.optimize
 
@@ -21,6 +21,7 @@ class BasinHoppingOptimizer(Optimizer):
         interval: int = 50,
         disp: bool = False,
         niter_success: Union[int, None] = None,
+        recorder=_recorder,
     ):
         """The BasinHoppingOptimizer utilizes the scipy.optimize.basinhopping method
         (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html). It is intended
@@ -37,7 +38,7 @@ class BasinHoppingOptimizer(Optimizer):
             disp: See scipy.optimize.basinhopping
             niter_success: See scipy.optimize.basinhopping
         """
-
+        super().__init__(recorder=recorder)
         self.niter = niter
         self.T = T
         self.stepsize = stepsize
@@ -48,7 +49,7 @@ class BasinHoppingOptimizer(Optimizer):
         self.disp = disp
         self.niter_success = niter_success
 
-    def minimize(
+    def _minimize(
         self,
         cost_function: CallableWithGradient,
         initial_params: np.ndarray = None,
@@ -63,10 +64,6 @@ class BasinHoppingOptimizer(Optimizer):
             keep_history: flag indicating whether history of cost function
                 evaluations should be recorded.
         """
-
-        if keep_history:
-            cost_function = recorder(cost_function)
-
         jacobian = None
         if hasattr(cost_function, "gradient") and callable(
             getattr(cost_function, "gradient")

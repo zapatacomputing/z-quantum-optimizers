@@ -4,10 +4,10 @@ from zquantum.core.interfaces.optimizer import (
     optimization_result,
     construct_history_info,
 )
-from zquantum.core.history.recorder import recorder, CallableWithGradient
+from zquantum.core.history.recorder import recorder as _recorder
+from zquantum.core.interfaces.functions import CallableWithGradient
 from typing import Optional, Tuple, Callable, Dict
 import scipy
-import scipy.optimize
 
 
 class ScipyOptimizer(Optimizer):
@@ -16,20 +16,24 @@ class ScipyOptimizer(Optimizer):
         method: str,
         constraints: Optional[Tuple[Dict[str, Callable]]] = None,
         options: Optional[Dict] = None,
+        recorder=_recorder,
     ):
         """
         Args:
             method: defines the optimization method
             constraints: list of constraints in the scipy compatible format.
             options: dictionary with additional options for the optimizer.
+            recorder: recorder object which defines how to store the optimization history.
+
         """
+        super().__init__(recorder=recorder)
         self.method = method
         if options is None:
             options = {}
         self.options = options
         self.constraints = [] if constraints is None else constraints
 
-    def minimize(
+    def _minimize(
         self,
         cost_function: CallableWithGradient,
         initial_params: np.ndarray = None,
@@ -41,10 +45,10 @@ class ScipyOptimizer(Optimizer):
         Args:
             cost_function: python method which takes numpy.ndarray as input
             initial_params: initial parameters to be used for optimization
-        """
+            keep_history: flag indicating whether history of cost function
+                evaluations should be recorded.
 
-        if keep_history:
-            cost_function = recorder(cost_function)
+        """
 
         jacobian = None
         if hasattr(cost_function, "gradient") and callable(

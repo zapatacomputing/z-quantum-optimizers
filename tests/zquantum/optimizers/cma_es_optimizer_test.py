@@ -9,13 +9,16 @@ def optimizer():
     return CMAESOptimizer(sigma_0=0.1)
 
 
-class TestCMAESOptimizer(OptimizerTests):
-    always_records_history = True
+@pytest.fixture(params=[True, False])
+def keep_history(request):
+    return request.param
 
+
+class TestCMAESOptimizer(OptimizerTests):
     def test_cmaes_specific_fields(self):
         results = CMAESOptimizer(
             sigma_0=0.1, options={"maxfevals": 99, "popsize": 5}
-        ).minimize(mock_cost_function, initial_params=[0, 0])
+        ).minimize(mock_cost_function, initial_params=[0, 0], keep_history=True)
 
         assert "cma_xfavorite" in results
         assert isinstance(results["cma_xfavorite"], list)

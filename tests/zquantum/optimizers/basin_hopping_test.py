@@ -56,5 +56,10 @@ def optimizer(request):
     return BasinHoppingOptimizer(**request.param)
 
 
+@pytest.fixture(params=[True, False])
+def keep_history(request):
+    return request.param
+
+
 class TestBasinHoppingOptimizer(OptimizerTests):
     pass

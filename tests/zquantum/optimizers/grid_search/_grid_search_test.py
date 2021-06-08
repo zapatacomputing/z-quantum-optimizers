@@ -13,6 +13,11 @@ def optimizer(request):
     return GridSearchOptimizer(request.param)
 
 
+@pytest.fixture(params=[True, False])
+def keep_history(request):
+    return request.param
+
+
 class TestGridSearchOptimizer(OptimizerTests):
     def test_get_values_grid(self):
         # Given

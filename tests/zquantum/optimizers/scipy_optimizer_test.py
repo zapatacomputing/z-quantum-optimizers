@@ -23,6 +23,11 @@ def optimizer(request):
     return ScipyOptimizer(**request.param)
 
 
+@pytest.fixture(params=[True, False])
+def keep_history(request):
+    return request.param
+
+
 class TestScipyOptimizer(OptimizerTests):
     def test_SLSQP_with_equality_constraints(self):
         # Given
