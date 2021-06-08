@@ -1,5 +1,7 @@
 # z-quantum-optimizers
 
+[![codecov](https://codecov.io/gh/zapatacomputing/z-quantum-optimizers/branch/master/graph/badge.svg?token=JZ7YI4DWOE)](https://codecov.io/gh/zapatacomputing/z-quantum-optimizers)
+
 ## What is it?
 
 `z-quantum-optimizers` is a module with basic optimizers to be used in workflows with [Orquestra](https://www.zapatacomputing.com/orquestra/) – a platform for performing computations on quantum computers developed by [Zapata Computing](https://www.zapatacomputing.com).
