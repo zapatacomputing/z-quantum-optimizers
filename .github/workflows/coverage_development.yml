@@ -32,6 +32,7 @@ jobs:
         with:
           repository: zapatacomputing/z-quantum-core
           path: z-quantum-core
+          ref: dev
 
       # Runs a set of commands using the runners shell
       - name: Run test coverage
