@@ -28,6 +28,7 @@ def optimize_variational_circuit(
     noise_model="None",
     device_connectivity="None",
     parameter_grid="None",
+    parameter_values_list=None,
     constraint_operator="None",
     prior_expectation_values: Optional[str] = None,
     keep_history=False,
@@ -70,16 +71,28 @@ def optimize_variational_circuit(
     else:
         grid = None
 
+    # Load parameter values list
+    if parameter_values_list is not None:
+        parameter_values_list = load_array(parameter_values_list)
+
     # Load optimizer specs
     if isinstance(optimizer_specs, str):
         optimizer_specs_dict = yaml.load(optimizer_specs, Loader=yaml.SafeLoader)
     else:
         optimizer_specs_dict = optimizer_specs
+
     if (
         grid is not None
         and optimizer_specs_dict["function_name"] == "GridSearchOptimizer"
     ):
         optimizer = create_object(optimizer_specs_dict, grid=grid)
+    elif (
+        parameter_values_list is not None
+        and optimizer_specs_dict["function_name"] == "DiscreteParameterValuesSearch"
+    ):
+        optimizer = create_object(
+            optimizer_specs_dict, parameter_values_list=parameter_values_list
+        )
     else:
         optimizer = create_object(optimizer_specs_dict)
 
