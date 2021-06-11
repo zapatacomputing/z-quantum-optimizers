@@ -88,7 +88,7 @@ def optimize_variational_circuit(
         optimizer = create_object(optimizer_specs_dict, grid=grid)
     elif (
         parameter_values_list is not None
-        and optimizer_specs_dict["function_name"] == "DiscreteParameterValuesSearch"
+        and optimizer_specs_dict["function_name"] == "SearchPointsOptimizer"
     ):
         optimizer = create_object(
             optimizer_specs_dict, parameter_values_list=parameter_values_list
