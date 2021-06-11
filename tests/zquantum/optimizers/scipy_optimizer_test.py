@@ -3,8 +3,6 @@ from zquantum.core.gradients import finite_differences_gradient
 from zquantum.core.interfaces.functions import FunctionWithGradient
 from zquantum.core.interfaces.optimizer_test import (
     OptimizerTests,
-    rosenbrock_function,
-    sum_x_squared,
 )
 from zquantum.optimizers.scipy_optimizer import ScipyOptimizer
 import pytest
@@ -29,7 +27,7 @@ def keep_history(request):
 
 
 class TestScipyOptimizer(OptimizerTests):
-    def test_SLSQP_with_equality_constraints(self):
+    def test_SLSQP_with_equality_constraints(self, sum_x_squared, rosenbrock_function):
         # Given
         cost_function = FunctionWithGradient(
             rosenbrock_function, finite_differences_gradient(rosenbrock_function)
@@ -49,7 +47,7 @@ class TestScipyOptimizer(OptimizerTests):
         assert results.opt_value == pytest.approx(target_value, abs=1e-3)
         assert results.opt_params == pytest.approx(target_params, abs=1e-3)
 
-    def test_SLSQP_with_inequality_constraints(self):
+    def test_SLSQP_with_inequality_constraints(self, rosenbrock_function):
         # Given
         cost_function = FunctionWithGradient(
             rosenbrock_function, finite_differences_gradient(rosenbrock_function)
