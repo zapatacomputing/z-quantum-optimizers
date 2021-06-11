@@ -24,6 +24,7 @@ class SearchPointsOptimizer(Optimizer):
             recorder: recorder object which defines how to store the optimization history.
         """
         super().__init__(recorder=recorder)
+        assert len(parameter_values_list) > 0
         self.parameter_values_list = parameter_values_list
 
     def _minimize(

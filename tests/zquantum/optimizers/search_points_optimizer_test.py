@@ -44,3 +44,7 @@ class TestSearchPointsOptimizer(OptimizerTests):
     @pytest.fixture()
     def optimizer(self, parameter_values_list):
         return SearchPointsOptimizer(parameter_values_list=parameter_values_list)
+
+    def test_assertion_raised_when_no_points_passed(self):
+        with pytest.raises(AssertionError):
+            SearchPointsOptimizer(parameter_values_list=[])
