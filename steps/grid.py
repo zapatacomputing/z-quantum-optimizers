@@ -1,10 +1,13 @@
 from typing import Optional
-from zquantum.core.typing import Specs
+from zquantum.core.typing import Specs, Union
 import numpy as np
 from zquantum.core.utils import load_from_specs
+from zquantum.core.serialization import save_array
 from zquantum.optimizers.grid_search import (
     build_uniform_param_grid as _build_uniform_param_grid,
     save_parameter_grid,
+    load_parameter_grid,
+    ParameterGrid,
 )
 
 # Build uniform parameter grid
@@ -28,3 +31,12 @@ def build_uniform_param_grid(
         number_of_params, number_of_layers, min_value, max_value, step
     )
     save_parameter_grid(grid, "parameter-grid.json")
+
+
+def get_parameter_values_list_from_grid(grid: Union[str, ParameterGrid]):
+    if isinstance(grid, str):
+        grid = load_parameter_grid(grid)
+
+    parameter_values_list = np.array(grid.params_list)
+
+    save_array(parameter_values_list, "parameter-values-list.json")

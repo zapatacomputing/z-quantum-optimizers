@@ -7,30 +7,25 @@ from zquantum.core.interfaces.optimizer import (
 )
 from zquantum.core.typing import RecorderFactory
 
-from ._parameter_grid import ParameterGrid
 from scipy.optimize import OptimizeResult
-from typing import Optional
+from typing import Optional, List
 import numpy as np
-import warnings
 
 
-class GridSearchOptimizer(Optimizer):
+class SearchPointsOptimizer(Optimizer):
     def __init__(
         self,
-        grid: ParameterGrid,
+        parameter_values_list: List[np.ndarray],
         recorder: RecorderFactory = _recorder,
     ):
         """
         Args:
-            grid: object defining for which parameters we want do the evaluations
+            parameter_values_list: list of parameter values to evaluate
             recorder: recorder object which defines how to store the optimization history.
         """
-        warnings.warn(
-            "The GridSearchOptimizer will soon be deprecated in favor of the SearchPointsOptimizer.",
-            DeprecationWarning,
-        )
         super().__init__(recorder=recorder)
-        self.grid = grid
+        assert len(parameter_values_list) > 0
+        self.parameter_values_list = parameter_values_list
 
     def _minimize(
         self,
@@ -39,7 +34,7 @@ class GridSearchOptimizer(Optimizer):
         keep_history: bool = False,
     ) -> OptimizeResult:
         """
-        Finds the parameters which minimize given cost function, by trying all the parameters from the grid.
+        Finds the parameters which minimize given cost function, by trying all the parameters from the provided list of points.
 
         Args:
             cost_function: object representing cost function we want to minimize
@@ -49,34 +44,24 @@ class GridSearchOptimizer(Optimizer):
 
         """
         if initial_params is not None and len(initial_params) != 0:
-            Warning("Grid search doesn't use initial parameters, they will be ignored.")
+            Warning(
+                "DiscreteParameterValuesSearch search doesn't use initial parameters, they will be ignored."
+            )
 
         min_value = None
-        nfev = 0
+        optimal_params = None
 
-        for params in self.grid.params_list:
-            value = cost_function(params)
-            nfev += 1
+        for parameter_values in self.parameter_values_list:
+            value = cost_function(parameter_values)
             if min_value is None or value < min_value:
                 min_value = value
-                optimal_params = params
+                optimal_params = parameter_values
 
         return optimization_result(
             opt_value=min_value,
             opt_params=optimal_params,
-            nfev=nfev,
+            nfev=len(self.parameter_values_list),
             nit=None,
             **construct_history_info(cost_function, keep_history)
         )
-
-    def get_values_grid(self, optimization_results: OptimizeResult) -> np.ndarray:
-        """Shapes the values from the optimization results into the shape of the grid.
-
-        Args:
-            optimization_results: an optimization results dictionary
-
-        Returns:
-            numpy.ndarray: the values obtained at each grid point, shaped to have the same dimensions as the mesh grid
-        """
-        values = np.array([step["value"] for step in optimization_results["history"]])
-        return np.reshape(values, self.grid.params_meshgrid[0].shape)
+        
