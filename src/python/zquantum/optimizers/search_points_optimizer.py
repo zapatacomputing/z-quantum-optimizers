@@ -33,7 +33,7 @@ class SearchPointsOptimizer(Optimizer):
         keep_history: bool = False,
     ) -> OptimizeResult:
         """
-        Finds the parameters which minimize given cost function, by trying all the parameters from the grid.
+        Finds the parameters which minimize given cost function, by trying all the parameters from the provided list of points.
 
         Args:
             cost_function: object representing cost function we want to minimize
@@ -63,3 +63,4 @@ class SearchPointsOptimizer(Optimizer):
             nit=None,
             **construct_history_info(cost_function, keep_history)
         )
+        
