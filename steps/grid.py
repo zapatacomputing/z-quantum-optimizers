@@ -5,7 +5,6 @@ from zquantum.core.utils import load_from_specs
 from zquantum.core.serialization import save_array
 from zquantum.optimizers.grid_search import (
     build_uniform_param_grid as _build_uniform_param_grid,
-    get_parameter_values_set_from_grid as _get_parameter_values_set_from_grid,
     save_parameter_grid,
     load_parameter_grid,
     ParameterGrid,
