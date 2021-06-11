@@ -11,6 +11,7 @@ from ._parameter_grid import ParameterGrid
 from scipy.optimize import OptimizeResult
 from typing import Optional
 import numpy as np
+import warnings
 
 
 class GridSearchOptimizer(Optimizer):
@@ -24,6 +25,10 @@ class GridSearchOptimizer(Optimizer):
             grid: object defining for which parameters we want do the evaluations
             recorder: recorder object which defines how to store the optimization history.
         """
+        warnings.warn(
+            "The GridSearchOptimizer will soon be deprecated in favor of the SearchPointsOptimizer.",
+            DeprecationWarning,
+        )
         super().__init__(recorder=recorder)
         self.grid = grid
 
