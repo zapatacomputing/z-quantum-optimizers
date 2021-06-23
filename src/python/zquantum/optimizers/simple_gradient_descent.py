@@ -1,4 +1,3 @@
-from tensorflow.python.ops.gen_math_ops import add
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
