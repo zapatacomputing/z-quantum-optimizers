@@ -35,6 +35,13 @@ class TestSimpleGradientDescent(OptimizerTests):
             _sum_x_squared, finite_differences_gradient(_sum_x_squared)
         )
 
+    def test_optimizer_succeeds_with_optimizing_rosenbrock_function(
+        self, optimizer, rosenbrock_function, keep_history
+    ):
+        pytest.xfail(
+            """This test fails since the gradient of the rosenbrock function is too sensitive when using finite differences"""
+        )
+
     def test_optimizer_succeeds_on_cost_function_without_gradient(
         self, optimizer, sum_x_squared
     ):
