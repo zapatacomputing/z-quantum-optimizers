@@ -310,7 +310,7 @@ class GDOptimizer(Optimizer):
              v, moments, **kwargs):
 
         grads = gradients(v)
-        new[k] = v - self.lr * grads
+        new = v - self.lr * grads
         return new, moments, grads
 
     def _momentum(self, gradients,
