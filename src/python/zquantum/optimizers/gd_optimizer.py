@@ -1,5 +1,4 @@
 from zquantum.core.gradients import finite_differences_gradient
-from zquantum.core.history.recorder import recorder
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient, FunctionWithGradient
 from zquantum.core.interfaces.optimizer import (
@@ -29,18 +28,6 @@ class GDOptimizer(Optimizer):
         a string, mainly used to select the function, f.
     f:
         a function for updating the suggested parameters of a cost_function object
-    lr:
-        a float. Hyperparameter: The learning rate (unscaled) to be used in each update;
-        in some literature, called a step size.
-    beta:
-        a float. Hyperparameter: scales (perhaps nonlinearly) all first moment terms in any relavant method.
-    rho:
-        a float. Hyperparameter: scales (perhaps nonlinearly) all second moment terms in any relavant method.
-        in some literature, may be referred to as 'beta_2'.
-    epsilon:
-        a float. Hyperparameter: used to prevent division by zero in some methods.
-    tol:
-        a float. If specified, __call__ aborts when the difference in energies between two steps is smaller than tol.
 
     Methods
     -------
@@ -67,6 +54,22 @@ class GDOptimizer(Optimizer):
             then unmodified, stochastic gradient descent will be used.
         options: dict: Default = None
             a dictionary of options to be used during minimization.
+            possible options are:
+                lr:
+                    a float. Hyperparameter: The learning rate (unscaled) to be used in each update;
+                    in some literature, called a step size.
+                beta:
+                    a float. Hyperparameter: scales (perhaps nonlinearly) all first moment terms in any relavant method.
+                rho:
+                    a float. Hyperparameter: scales (perhaps nonlinearly) all second moment terms in any relavant method.
+                    in some literature, may be referred to as 'beta_2'.
+                epsilon:
+                    a float. Hyperparameter: used to prevent division by zero in some methods.
+                tol:
+                    a float. If specified, minimize aborts when the difference in energies between two steps is smaller
+                    than tol.
+        recorder:
+            a zquantum recorder object, which will be used to record information if histories are sought.
         kwargs
         """
 
@@ -87,11 +90,6 @@ class GDOptimizer(Optimizer):
         if options is None:
             options = {}
         self.options = options
-        if "keep_value_history" not in self.options.keys():
-            self.keep_value_history = False
-        else:
-            self.keep_value_history = self.options["keep_value_history"]
-            del self.options["keep_value_history"]
 
     def stop_condition(self, step, diff):
         if step==0:
@@ -166,17 +164,16 @@ class GDOptimizer(Optimizer):
             self.maxiter=self.options['maxiter']
         else:
             self.maxiter=None
-        if keep_history:
-            cost_function = recorder(cost_function)
 
         if not hasattr(cost_function, "gradient"):
             cost_function = FunctionWithGradient(
                 cost_function, finite_differences_gradient(cost_function)
             )
 
+        if keep_history:
+            cost_function = self.recorder(cost_function)
+
         gradient = cost_function.gradient
-
-
 
         initial_params=numpy.asarray(initial_params)
         step=0
