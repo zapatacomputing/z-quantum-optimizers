@@ -1,3 +1,5 @@
+import time
+
 from zquantum.core.gradients import finite_differences_gradient
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient, FunctionWithGradient
@@ -11,6 +13,11 @@ from scipy.optimize import OptimizeResult
 from typing import Dict, Optional
 import numpy
 import numbers
+
+def time_print(start,end,word: str = None):
+    final = end - start
+    minutes, seconds = divmod(final, 60)
+    print("{} took {} min {} sec".format(word,int(minutes), round(seconds)))
 
 
 class GDOptimizer(Optimizer):
@@ -173,40 +180,55 @@ class GDOptimizer(Optimizer):
         if keep_history:
             cost_function = self.recorder(cost_function)
 
-        gradient = cost_function.gradient
+        gradients = cost_function.gradient
 
         initial_params=numpy.asarray(initial_params)
         step=0
-        e = cost_function(initial_params)
-        opt_value = e
-        opt_params=initial_params
-        moments=(numpy.zeros(len(initial_params)),numpy.zeros(len(initial_params)))
 
+        s=time.time()
+        e = cost_function(initial_params)
+        f = time.time()
+        time_print(s,f,'first call')
+
+        opt_value = e
+        opt_params = initial_params
+        moments = (numpy.zeros(len(initial_params)),numpy.zeros(len(initial_params)))
 
         last = e
-        step +=1
-        v, moments, grads = self.take_step(v=initial_params, moments=moments, gradients=gradient, step=step)
 
+        v, moments = self.f(step=step,
+                            gradients=gradients,
+                            moments=moments,
+                            v=initial_params)
+        step += 1
+        s=time.time()
         e=cost_function(v)
+        end=time.time()
+        time_print(s,end,"step call {}".format(str(int(step))))
         if e < opt_value:
             opt_value = e
             opt_params = v
 
         diff = numpy.abs(e - last)
         last=e
-        step+=1
+
 
         while not self.stop_condition(step,diff):
-            v, moments, grads = self.take_step(v=v, moments=moments, gradients=gradient, step=step)
+            v, moments = self.f(step=step,
+                   gradients=gradients,
+                   moments=moments,
+                   v=v)
+            step += 1
+            s = time.time()
             e = cost_function(v)
+            end = time.time()
+            time_print(s, end, "step call {}".format(str(int(step))))
             if e < opt_value:
                 opt_value = e
                 opt_params = v
 
             diff = numpy.abs(e - last)
             last = e
-            step += 1
-
 
         return optimization_result(
             opt_value=opt_value,
@@ -215,46 +237,27 @@ class GDOptimizer(Optimizer):
             **construct_history_info(cost_function, keep_history)
         )
 
-
-    def take_step(self, v, moments, gradients, step):
-        """
-        perform a single optimization step and return suggested parameters.
-        Parameters
-        ----------
-        v:
-
-
-        Returns
-        -------
-        tuple
-            tuple of new parameters, the update moments at current time, and the gradients taken,
-        """
-
-        new, moments, grads = self.f(step=step,
-                                     gradients=gradients,
-                                     moments=moments,
-                                     v=v)
-        return new, moments, grads
-
-
     def _adam(self, gradients, step,
               v, moments,
               **kwargs):
         t = step + 1
         s = moments[0]
         r = moments[1]
+        start=time.time()
         grads = gradients(v)
+        end=time.time()
+        time_print(start,end,'adam gradient')
+        start=time.time()
         s = self.beta * s + (1 - self.beta) * grads
         r = self.rho * r + (1 - self.rho) * numpy.square(grads)
         s_hat = s / (1 - self.beta ** t)
         r_hat = r / (1 - self.rho ** t)
-        updates = []
-        for i in range(len(grads)):
-            rule = - self.lr * s_hat[i] / (numpy.sqrt(r_hat[i]) + self.epsilon)
-            updates.append(rule)
-        new = v + numpy.asarray(updates)
-        back_moment = [s, r]
-        return new, back_moment, grads
+        new = v - (self.lr * s_hat / (numpy.sqrt(r_hat) + self.epsilon))
+        back_moments = [s, r]
+        end=time.time()
+        time_print(start,end,'adam update')
+
+        return new, back_moments
 
     def _adagrad(self, gradients,
                  v, moments, **kwargs):
@@ -266,7 +269,7 @@ class GDOptimizer(Optimizer):
         new = v - self.lr * grads / numpy.sqrt(r + self.epsilon)
 
         back_moments = [moments[0], r]
-        return new, back_moments, grads
+        return new, back_moments
 
     def _adamax(self, gradients,
                 v, moments, **kwargs):
@@ -276,13 +279,9 @@ class GDOptimizer(Optimizer):
         grads = gradients(v)
         s = self.beta * s + (1 - self.beta) * grads
         r = self.rho * r + (1 - self.rho) * numpy.linalg.norm(grads, numpy.inf)
-        updates = []
-        for i in range(len(grads)):
-            rule = - self.lr * s[i] / r[i]
-            updates.append(rule)
-        new = v + numpy.asarray(updates)
-        back_moment = [s, r]
-        return new, back_moment, grads
+        new = v - self.lr * s/r
+        back_moments = [s, r]
+        return new, back_moments
 
     def _nadam(self, step, gradients,
                v, moments,
@@ -296,22 +295,18 @@ class GDOptimizer(Optimizer):
         r = self.rho * r + (1 - self.rho) * numpy.square(grads)
         s_hat = s / (1 - self.beta ** t)
         r_hat = r / (1 - self.rho ** t)
-        updates = []
-        for i in range(len(grads)):
-            rule = - self.lr * (self.beta * s_hat[i] + (1 - self.beta) * grads[i] / (1 - self.beta ** t)) / (
-                        numpy.sqrt(r_hat[i]) + self.epsilon)
-            updates.append(rule)
-
-        new = v + numpy.asarray(updates)
-        back_moment = [s, r]
-        return new, back_moment, grads
+        rule = - self.lr * (self.beta * s_hat + (1 - self.beta) * grads / (1 - self.beta ** t)) / (
+                        numpy.sqrt(r_hat) + self.epsilon)
+        new = v + rule
+        back_moments = [s, r]
+        return new, back_moments
 
     def _sgd(self, gradients,
              v, moments, **kwargs):
 
         grads = gradients(v)
         new = v - self.lr * grads
-        return new, moments, grads
+        return new, moments
 
     def _momentum(self, gradients,
                   v, moments, **kwargs):
@@ -323,7 +318,7 @@ class GDOptimizer(Optimizer):
         new = v + m
 
         back_moments = [m, moments[1]]
-        return new, back_moments, grads
+        return new, back_moments
 
     def _nesterov(self, gradients,
                   v, moments, **kwargs):
@@ -336,19 +331,24 @@ class GDOptimizer(Optimizer):
         new = v + m
 
         back_moments = [m, moments[1]]
-        return new, back_moments, grads
+        return new, back_moments
 
     def _rms(self, gradients,
              v, moments,
              **kwargs):
 
         r = moments[1]
+        s=time.time()
         grads = gradients(v)
+        e=time.time()
+        time_print(s,e,'rms gradients')
+        s=time.time()
         r = self.rho * r + (1 - self.rho) * numpy.square(grads)
         new = v - self.lr * grads / numpy.sqrt(self.epsilon + r)
-
+        e=time.time()
+        time_print(s,e,'rms update')
         back_moments = [moments[0], r]
-        return new, back_moments, grads
+        return new, back_moments
 
     def _rms_nesterov(self, gradients,
                       v, moments,
@@ -361,11 +361,8 @@ class GDOptimizer(Optimizer):
         interim = v + self.beta * m
 
         grads = gradients(interim)
-
         r = self.rho * r + (1 - self.rho) * numpy.square(grads)
-        for i in range(len(m)):
-            m[i] = self.beta * m[i] - self.lr * grads[i] / numpy.sqrt(r[i])
-        new = v + m
+        new = v + self.beta * m - self.lr * grads / numpy.sqrt(r)
 
         back_moments = [m, r]
-        return new, back_moments, grads
+        return new, back_moments
