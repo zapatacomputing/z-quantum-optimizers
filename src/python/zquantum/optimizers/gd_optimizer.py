@@ -16,8 +16,9 @@ import numbers
 
 def time_print(start,end,word: str = None):
     final = end - start
-    minutes, seconds = divmod(final, 60)
-    print("{} took {} min {} sec".format(word,int(minutes), round(seconds)))
+    minutes = int(final/60)
+    seconds = final - 60*minutes
+    print("{} took {} min {.2f} sec".format(word,int(minutes),seconds))
 
 
 class GDOptimizer(Optimizer):
