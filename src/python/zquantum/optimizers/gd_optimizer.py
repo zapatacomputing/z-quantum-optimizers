@@ -247,7 +247,9 @@ class GDOptimizer(Optimizer):
         start=time.time()
         grads = gradients(v)
         end=time.time()
+
         time_print(start,end,'adam gradient')
+
         start=time.time()
         s = self.beta * s + (1 - self.beta) * grads
         r = self.rho * r + (1 - self.rho) * numpy.square(grads)
@@ -255,6 +257,7 @@ class GDOptimizer(Optimizer):
         r_hat = r / (1 - self.rho ** t)
         new = v - (self.lr * s_hat / (numpy.sqrt(r_hat) + self.epsilon))
         back_moments = [s, r]
+
         end=time.time()
         time_print(start,end,'adam update')
 
