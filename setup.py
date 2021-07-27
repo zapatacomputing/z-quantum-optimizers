@@ -1,12 +1,13 @@
 import setuptools
-import os
+
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
+
 setuptools.setup(
     name="z-quantum-optimizers",
-    version="0.2.0",
+    use_scm_version=True,
     author="Zapata Computing, Inc.",
     author_email="info@zapatacomputing.com",
     description="Core optimizers for Orquestra.",
@@ -21,6 +22,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ),
+    setup_requires=["setuptools_scm~=6.0"],
     install_requires=[
         "z-quantum-core",
         "cma==2.7.0",
