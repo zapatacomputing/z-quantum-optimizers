@@ -113,6 +113,13 @@ class GDOptimizer(Optimizer):
             else:
                 return (numpy.abs(diff) < self.tol or step >= self.maxiter)
 
+    def _preprocess_cost_function(self,cost_function):
+        if not hasattr(cost_function, "gradient"):
+            cost_function = FunctionWithGradient(
+                cost_function, finite_differences_gradient(cost_function)
+            )
+        return cost_function
+
     def _minimize(
         self,
         cost_function: CallableWithGradient,
@@ -173,13 +180,8 @@ class GDOptimizer(Optimizer):
         else:
             self.maxiter = None
 
-        if not hasattr(cost_function, "gradient"):
-            cost_function = FunctionWithGradient(
-                cost_function, finite_differences_gradient(cost_function)
-            )
 
-        if keep_history:
-            cost_function = self.recorder(cost_function)
+
 
         gradients = cost_function.gradient
 
