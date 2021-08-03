@@ -159,7 +159,7 @@ class GDOptimizer(Optimizer):
         else:
             self.epsilon = self.options['epsilon']
         if 'tol' not in self.options.keys():
-            self.tol = 1e-3
+            self.tol = None
         else:
             self.tol = self.options['tol']
 
@@ -169,9 +169,9 @@ class GDOptimizer(Optimizer):
         assert all([k > .0 for k in [self.lr, self.beta, self.rho, self.epsilon]])
 
         if 'maxiter' in self.options.keys():
-            self.maxiter=self.options['maxiter']
+            self.maxiter = self.options['maxiter']
         else:
-            self.maxiter=None
+            self.maxiter = None
 
         if not hasattr(cost_function, "gradient"):
             cost_function = FunctionWithGradient(
