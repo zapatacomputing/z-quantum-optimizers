@@ -1,9 +1,10 @@
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+from scipy.optimize import OptimizeResult
 from zquantum.core.history.recorder import recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import Optimizer, optimization_result
-from scipy.optimize import OptimizeResult
-from typing import Dict, Optional, List, Tuple
-import numpy as np
 
 
 class ParameterGrid:

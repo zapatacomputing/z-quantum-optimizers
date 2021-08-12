@@ -1,15 +1,15 @@
+from typing import List, Optional
+
+import numpy as np
+from scipy.optimize import OptimizeResult
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
-    optimization_result,
     construct_history_info,
+    optimization_result,
 )
 from zquantum.core.typing import RecorderFactory
-
-from scipy.optimize import OptimizeResult
-from typing import Optional, List
-import numpy as np
 
 
 class SearchPointsOptimizer(Optimizer):
@@ -64,4 +64,3 @@ class SearchPointsOptimizer(Optimizer):
             nit=None,
             **construct_history_info(cost_function, keep_history)
         )
-        

@@ -1,14 +1,16 @@
-from zquantum.core.interfaces.functions import CallableWithGradient
-from zquantum.core.interfaces.optimizer import Optimizer, construct_history_info
-from zquantum.core.interfaces.functions import CallableStoringArtifacts
-from zquantum.core.history.recorder import recorder as _recorder
-from zquantum.core.interfaces.functions import CallableWithGradient
-from zquantum.core.typing import RecorderFactory
-from scipy.optimize import OptimizeResult
-from typing import Dict, Optional, List, Union, Callable
-import numpy as np
-from functools import partial
 import copy
+from functools import partial
+from typing import Callable, Dict, List, Optional, Union
+
+import numpy as np
+from scipy.optimize import OptimizeResult
+from zquantum.core.history.recorder import recorder as _recorder
+from zquantum.core.interfaces.functions import (
+    CallableStoringArtifacts,
+    CallableWithGradient,
+)
+from zquantum.core.interfaces.optimizer import Optimizer, construct_history_info
+from zquantum.core.typing import RecorderFactory
 
 
 class LayerwiseAnsatzOptimizer:
