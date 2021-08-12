@@ -12,7 +12,7 @@ from zquantum.core.interfaces.optimizer import (
 from zquantum.core.typing import RecorderFactory
 
 
-class ScikitQuantOptimizers(Optimizer):
+class ScikitQuantOptimizer(Optimizer):
     def __init__(
         self,
         method: str,
