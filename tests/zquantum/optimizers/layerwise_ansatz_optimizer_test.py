@@ -4,90 +4,78 @@ from zquantum.optimizers.scipy_optimizer import ScipyOptimizer
 from zquantum.core.interfaces.mock_objects import MockAnsatz
 from zquantum.core.interfaces.optimizer_test import OptimizerTests
 from zquantum.core.history.recorder import recorder
+from zquantum.core.interfaces.optimizer_test import NESTED_OPTIMIZER_CONTRACTS
+from zquantum.core.gradients import finite_differences_gradient
+from zquantum.core.interfaces.functions import FunctionWithGradient
 
 import pytest
 from functools import partial
 
 
+ansatz = MockAnsatz(1, 5)
+
+
 @pytest.fixture(
     params=[
-        {"inner_optimizer": ScipyOptimizer("L-BFGS-B"), "min_layer": 1, "max_layer": 1}
+        {
+            "ansatz": ansatz,
+            "inner_optimizer": ScipyOptimizer("L-BFGS-B"),
+            "min_layer": 1,
+            "max_layer": 3,
+        }
     ]
 )
 def optimizer(request):
     return LayerwiseAnsatzOptimizer(**request.param)
 
 
-@pytest.fixture(params=[True, False])
-def keep_history(request):
-    return request.param
+def cost_function_factory(ansatz):
+    def cost_function(x):
+        return sum(x ** 2) * ansatz.number_of_layers
+
+    return cost_function
 
 
-class TestLayerwiseAnsatzOptimizer(OptimizerTests):
-    @pytest.fixture
-    def sum_x_squared(self):
-        class my_fun:
-            def __init__(self, ansatz):
-                self.ansatz = ansatz
+initial_params = np.array([1])
 
-            def __call__(self, x):
-                return sum(x ** 2)
 
-        return my_fun(MockAnsatz(1, 5))
+class TestLayerwiseAnsatzOptimizer:
+    @pytest.mark.parametrize("contract", NESTED_OPTIMIZER_CONTRACTS)
+    def test_if_satisfies_contracts(self, contract, optimizer):
+        assert contract(optimizer, cost_function_factory, initial_params)
 
-    @pytest.fixture
-    def rosenbrock_function(self):
-        def _rosenbrock_function(x):
-            return sum(100.0 * (x[1:] - x[:-1] ** 2.0) ** 2.0 + (1 - x[:-1]) ** 2.0)
-
-        _rosenbrock_function.ansatz = MockAnsatz(1, 5)
-
-        return _rosenbrock_function
-
-    def test_gradients_history_is_recorded_if_keep_history_is_true(
-        self, optimizer, sum_x_squared
-    ):
-        pytest.xfail(
-            """This test fail since LayerwiseAnsatzOptimizer is deepcopying 
-                input cost_function, which is intended behaviour."""
-        )
-
-    def test_ansatz_is_not_modified_outside_of_minimize(self, sum_x_squared):
-        optimizer = LayerwiseAnsatzOptimizer(
-            inner_optimizer=ScipyOptimizer("L-BFGS-B"), min_layer=2, max_layer=4
-        )
-        cost_function = sum_x_squared
-        initial_number_of_layers = cost_function.ansatz.number_of_layers
-        _ = optimizer.minimize(cost_function, initial_params=[0, 0])
-        assert cost_function.ansatz.number_of_layers == initial_number_of_layers
+    def test_ansatz_is_not_modified_outside_of_minimize(self, optimizer):
+        initial_number_of_layers = ansatz.number_of_layers
+        _ = optimizer.minimize(cost_function_factory, initial_params=initial_params)
+        assert ansatz.number_of_layers == initial_number_of_layers
 
     @pytest.mark.parametrize("max_layer", [2, 3, 4, 5])
-    def test_length_of_parameters_in_history_increases(self, sum_x_squared, max_layer):
+    def test_length_of_parameters_in_history_increases(self, max_layer):
         min_layer = 1
         optimizer = LayerwiseAnsatzOptimizer(
+            ansatz=ansatz,
             inner_optimizer=ScipyOptimizer("L-BFGS-B"),
             min_layer=min_layer,
             max_layer=max_layer,
         )
         opt_results = optimizer.minimize(
-            sum_x_squared, initial_params=np.ones(min_layer)
+            cost_function_factory, initial_params=np.ones(min_layer), keep_history=True
         )
         assert len(opt_results.opt_params) == max_layer
-
-    def test_fails_if_cost_function_does_not_have_ansatz(self, optimizer):
-        cost_function_without_ansatz = lambda x: sum(x ** 2)
-        with pytest.raises(ValueError):
-            _ = optimizer.minimize(cost_function_without_ansatz, initial_params=[0, 0])
 
     @pytest.mark.parametrize(
         "min_layer,max_layer,n_layers_per_iteration",
         [[1, 2, 1], [1, 5, 1], [100, 120, 1], [1, 5, 2], [1, 10, 4], [1, 10, 20]],
     )
     def test_parameters_are_properly_initialized_for_each_layer(
-        self, sum_x_squared, optimizer, min_layer, max_layer, n_layers_per_iteration
+        self, min_layer, max_layer, n_layers_per_iteration
     ):
-        parameters_initializer = recorder(partial(np.random.uniform, -np.pi, np.pi))
+        def parameters_initializer(number_of_params, old_params):
+            return np.random.uniform(-np.pi, np.pi, number_of_params)
+
+        parameters_initializer = recorder(parameters_initializer)
         optimizer = LayerwiseAnsatzOptimizer(
+            ansatz=ansatz,
             inner_optimizer=ScipyOptimizer("L-BFGS-B"),
             min_layer=min_layer,
             max_layer=max_layer,
@@ -95,7 +83,7 @@ class TestLayerwiseAnsatzOptimizer(OptimizerTests):
             parameters_initializer=parameters_initializer,
         )
 
-        _ = optimizer.minimize(sum_x_squared, initial_params=np.ones(min_layer))
+        _ = optimizer.minimize(cost_function_factory, initial_params=np.ones(min_layer))
         assert parameters_initializer.call_number == np.floor(
             (max_layer - min_layer) / n_layers_per_iteration
         )
@@ -106,12 +94,8 @@ class TestLayerwiseAnsatzOptimizer(OptimizerTests):
     def test_fails_for_invalid_min_max_layer(self, min_layer, max_layer):
         with pytest.raises(AssertionError):
             LayerwiseAnsatzOptimizer(
+                ansatz=ansatz,
                 inner_optimizer=ScipyOptimizer("L-BFGS-B"),
                 min_layer=min_layer,
                 max_layer=max_layer,
             )
-
-    def test_fails_if_cost_function_does_not_have_ansatz(self, optimizer):
-        cost_function_without_ansatz = lambda x: sum(x ** 2)
-        with pytest.raises(ValueError):
-            _ = optimizer.minimize(cost_function_without_ansatz, initial_params=[0, 0])
