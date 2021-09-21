@@ -1,3 +1,5 @@
+from unittest import mock
+
 import numpy as np
 from zquantum.optimizers.layerwise_ansatz_optimizer import LayerwiseAnsatzOptimizer
 from zquantum.optimizers.scipy_optimizer import ScipyOptimizer
@@ -73,7 +75,7 @@ class TestLayerwiseAnsatzOptimizer:
         def parameters_initializer(number_of_params, old_params):
             return np.random.uniform(-np.pi, np.pi, number_of_params)
 
-        parameters_initializer = recorder(parameters_initializer)
+        parameters_initializer = mock.Mock(wraps=parameters_initializer)
         optimizer = LayerwiseAnsatzOptimizer(
             ansatz=ansatz,
             inner_optimizer=ScipyOptimizer("L-BFGS-B"),
@@ -84,11 +86,19 @@ class TestLayerwiseAnsatzOptimizer:
         )
 
         _ = optimizer.minimize(cost_function_factory, initial_params=np.ones(min_layer))
-        assert parameters_initializer.call_number == np.floor(
-            (max_layer - min_layer) / n_layers_per_iteration
+        assert (
+            parameters_initializer.call_count
+            == (max_layer - min_layer) // n_layers_per_iteration
         )
-        for entry in parameters_initializer.history:
-            assert len(entry.value) == n_layers_per_iteration
+
+        for ((args, _kwrgs), i) in zip(
+            parameters_initializer.call_args_list,
+            range(
+                min_layer + n_layers_per_iteration, max_layer, n_layers_per_iteration
+            ),
+        ):
+            number_of_params, old_params = args
+            assert number_of_params == i
 
     @pytest.mark.parametrize("min_layer,max_layer", [[-1, 2], [3, 2], [-5, -1]])
     def test_fails_for_invalid_min_max_layer(self, min_layer, max_layer):
