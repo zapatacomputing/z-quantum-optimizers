@@ -1,42 +1,33 @@
-from zquantum.core.interfaces.functions import CallableWithGradient
-from zquantum.core.interfaces.optimizer import (
-    NestedOptimizer,
-    Optimizer,
-    construct_history_info,
-)
+import copy
+from collections import defaultdict
+from typing import Callable
+
+import numpy as np
+from scipy.optimize import OptimizeResult
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.ansatz import Ansatz
-from zquantum.core.interfaces.cost_function import (
-    CostFunction,
-    ParameterPreprocessor,
-)
-from zquantum.core.interfaces.functions import CallableWithGradient
+from zquantum.core.interfaces.cost_function import CostFunction
 from zquantum.core.interfaces.optimizer import (
-    Optimizer,
-    construct_history_info,
     NestedOptimizer,
+    Optimizer,
     extend_histories,
 )
 from zquantum.core.typing import RecorderFactory
-from scipy.optimize import OptimizeResult
-from typing import Optional, Union, Callable
-import numpy as np
-from functools import partial
-import copy
-from collections import defaultdict
-from typing_extensions import Protocol
-import abc
-from zquantum.core.utils import ValueEstimate
 
 
-def _append_new_random_params(
-    number_of_params: int, old_params: np.ndarray
-) -> np.ndarray:
-    assert len(old_params) < number_of_params
-    new_layer_params = np.random.uniform(
-        -np.pi, np.pi, number_of_params - len(old_params)
-    )
-    return np.concatenate([old_params, new_layer_params])
+def append_random_params(target_size: int, params: np.ndarray) -> np.ndarray:
+    """
+    Adds new random parameters to the `params` so that the size
+    of the output is `target_size`.
+    New parameters are sampled from a uniform distribution over [-pi, pi].
+
+    Args:
+        target_size: target number of parameters
+        params: params that we want to extend
+    """
+    assert len(params) < target_size
+    new_params = np.random.uniform(-np.pi, np.pi, target_size - len(params))
+    return np.concatenate([params, new_params])
 
 
 class LayerwiseAnsatzOptimizer(NestedOptimizer):
@@ -55,9 +46,9 @@ class LayerwiseAnsatzOptimizer(NestedOptimizer):
         min_layer: int,
         max_layer: int,
         n_layers_per_iteration: int = 1,
-        parameters_initializer: Optional[
-            Callable[[int, np.ndarray], np.ndarray]
-        ] = _append_new_random_params,  # This won't work with None.
+        parameters_initializer: Callable[
+            [int, np.ndarray], np.ndarray
+        ] = append_random_params,
         recorder: RecorderFactory = _recorder,
     ) -> None:
         """
@@ -109,15 +100,15 @@ class LayerwiseAnsatzOptimizer(NestedOptimizer):
 
             opt_result = optimizer.minimize(initial_params)
         """
-        # TODO which should be private, which should not be private?
+
         assert 0 <= min_layer <= max_layer
         assert n_layers_per_iteration > 0
         self._ansatz = ansatz
         self._inner_optimizer = inner_optimizer
-        self.min_layer = min_layer
-        self.max_layer = max_layer
-        self.n_layers_per_iteration = n_layers_per_iteration
-        self.parameters_initializer = parameters_initializer
+        self._min_layer = min_layer
+        self._max_layer = max_layer
+        self._n_layers_per_iteration = n_layers_per_iteration
+        self._parameters_initializer = parameters_initializer
         self._recorder = recorder
 
     def _minimize(
@@ -136,18 +127,20 @@ class LayerwiseAnsatzOptimizer(NestedOptimizer):
 
         """
         ansatz = copy.deepcopy(self._ansatz)
-        ansatz.number_of_layers = self.min_layer
+        ansatz.number_of_layers = self._min_layer
 
         nit = 0
         nfev = 0
         histories = defaultdict(list)
         histories["history"] = []
         initial_params_per_iteration = initial_params
-        for i in range(self.min_layer, self.max_layer + 1, self.n_layers_per_iteration):
+        for i in range(
+            self._min_layer, self._max_layer + 1, self._n_layers_per_iteration
+        ):
             assert ansatz.number_of_layers == i
 
-            if i != self.min_layer:
-                initial_params_per_iteration = self.parameters_initializer(
+            if i != self._min_layer:
+                initial_params_per_iteration = self._parameters_initializer(
                     ansatz.number_of_params, optimal_params
                 )
 
@@ -160,7 +153,7 @@ class LayerwiseAnsatzOptimizer(NestedOptimizer):
             )
 
             optimal_params: np.ndarray = layer_results.opt_params
-            ansatz.number_of_layers += self.n_layers_per_iteration
+            ansatz.number_of_layers += self._n_layers_per_iteration
 
             nfev += layer_results.nfev
             nit += layer_results.nit

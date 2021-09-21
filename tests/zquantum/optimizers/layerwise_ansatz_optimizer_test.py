@@ -1,34 +1,24 @@
 from unittest import mock
 
 import numpy as np
-from zquantum.optimizers.layerwise_ansatz_optimizer import LayerwiseAnsatzOptimizer
-from zquantum.optimizers.scipy_optimizer import ScipyOptimizer
-from zquantum.core.interfaces.mock_objects import MockAnsatz
-from zquantum.core.interfaces.optimizer_test import OptimizerTests
-from zquantum.core.history.recorder import recorder
-from zquantum.core.interfaces.optimizer_test import NESTED_OPTIMIZER_CONTRACTS
-from zquantum.core.gradients import finite_differences_gradient
-from zquantum.core.interfaces.functions import FunctionWithGradient
-
 import pytest
-from functools import partial
-
-
-ansatz = MockAnsatz(1, 5)
-
-
-@pytest.fixture(
-    params=[
-        {
-            "ansatz": ansatz,
-            "inner_optimizer": ScipyOptimizer("L-BFGS-B"),
-            "min_layer": 1,
-            "max_layer": 3,
-        }
-    ]
+from zquantum.core.interfaces.mock_objects import MockAnsatz
+from zquantum.core.interfaces.optimizer_test import NESTED_OPTIMIZER_CONTRACTS
+from zquantum.optimizers.layerwise_ansatz_optimizer import (
+    LayerwiseAnsatzOptimizer,
+    append_random_params,
 )
-def optimizer(request):
-    return LayerwiseAnsatzOptimizer(**request.param)
+from zquantum.optimizers.scipy_optimizer import ScipyOptimizer
+
+
+@pytest.fixture
+def ansatz():
+    return MockAnsatz(1, 5)
+
+
+@pytest.fixture
+def initial_params():
+    return np.array([1])
 
 
 def cost_function_factory(ansatz):
@@ -38,21 +28,31 @@ def cost_function_factory(ansatz):
     return cost_function
 
 
-initial_params = np.array([1])
-
-
 class TestLayerwiseAnsatzOptimizer:
     @pytest.mark.parametrize("contract", NESTED_OPTIMIZER_CONTRACTS)
-    def test_if_satisfies_contracts(self, contract, optimizer):
+    def test_if_satisfies_contracts(self, contract, ansatz, initial_params):
+        optimizer = LayerwiseAnsatzOptimizer(
+            ansatz=ansatz,
+            inner_optimizer=ScipyOptimizer("L-BFGS-B"),
+            min_layer=1,
+            max_layer=3,
+        )
+
         assert contract(optimizer, cost_function_factory, initial_params)
 
-    def test_ansatz_is_not_modified_outside_of_minimize(self, optimizer):
+    def test_ansatz_is_not_modified_outside_of_minimize(self, ansatz, initial_params):
         initial_number_of_layers = ansatz.number_of_layers
+        optimizer = LayerwiseAnsatzOptimizer(
+            ansatz=ansatz,
+            inner_optimizer=ScipyOptimizer("L-BFGS-B"),
+            min_layer=1,
+            max_layer=3,
+        )
         _ = optimizer.minimize(cost_function_factory, initial_params=initial_params)
         assert ansatz.number_of_layers == initial_number_of_layers
 
     @pytest.mark.parametrize("max_layer", [2, 3, 4, 5])
-    def test_length_of_parameters_in_history_increases(self, max_layer):
+    def test_dimension_of_solution_increases(self, max_layer, ansatz):
         min_layer = 1
         optimizer = LayerwiseAnsatzOptimizer(
             ansatz=ansatz,
@@ -70,7 +70,7 @@ class TestLayerwiseAnsatzOptimizer:
         [[1, 2, 1], [1, 5, 1], [100, 120, 1], [1, 5, 2], [1, 10, 4], [1, 10, 20]],
     )
     def test_parameters_are_properly_initialized_for_each_layer(
-        self, min_layer, max_layer, n_layers_per_iteration
+        self, min_layer, max_layer, n_layers_per_iteration, ansatz
     ):
         def parameters_initializer(number_of_params, old_params):
             return np.random.uniform(-np.pi, np.pi, number_of_params)
@@ -101,7 +101,7 @@ class TestLayerwiseAnsatzOptimizer:
             assert number_of_params == i
 
     @pytest.mark.parametrize("min_layer,max_layer", [[-1, 2], [3, 2], [-5, -1]])
-    def test_fails_for_invalid_min_max_layer(self, min_layer, max_layer):
+    def test_fails_for_invalid_min_max_layer(self, min_layer, max_layer, ansatz):
         with pytest.raises(AssertionError):
             LayerwiseAnsatzOptimizer(
                 ansatz=ansatz,
@@ -109,3 +109,23 @@ class TestLayerwiseAnsatzOptimizer:
                 min_layer=min_layer,
                 max_layer=max_layer,
             )
+
+
+@pytest.mark.parametrize(
+    "target_size,params",
+    [[4, np.array([0, 1])], [100, np.ones(99)], [5, np.array([])]],
+)
+def test_append_random_params(target_size, params):
+    new_params = append_random_params(target_size, params)
+    assert len(new_params) == target_size
+
+    np.testing.assert_array_equal(params, new_params[: len(params)])
+
+
+@pytest.mark.parametrize(
+    "target_size,params",
+    [[-5, np.array([0, 1])], [15, np.ones(99)], [10, np.ones(10)]],
+)
+def test_append_random_params_fails_for_wrong_input(target_size, params):
+    with pytest.raises(AssertionError):
+        _ = append_random_params(target_size, params)
