@@ -52,53 +52,26 @@ class LayerwiseAnsatzOptimizer(NestedOptimizer):
         recorder: RecorderFactory = _recorder,
     ) -> None:
         """
+        LayerwiseAnsatzOptimizer is an optimizer for optimizing ansatz parameters
+        for ansatzes with layered structure.
+        In each iteration it adds specific number of new layers and initializes their parameters
+        using `parameters_initializer`.
+        The idea behind this method is to start from a less complex problem (i.e. small number of layers)
+        and gradually increase its difficulty using parameters obtained in the previous iteration
+        as good starting points for the following iteration.
+
+        To make it work it requires using a cost function factory that takes `Ansatz` object as input
+        to generate the cost function (see `_minimize` method).
+
         Args:
-            inner_optimizer: optimizer used for optimization at each layer.
+            ansatz: ansatz that will be used for creating the cost function.
+            inner_optimizer: optimizer used for optimization of parameters
+                after adding a new layer to the ansatz.
             min_layer: starting number of layers.
             max_layer: maximum number of layers, at which optimization should stop.
-            TODO:
-
-        Example usage (aka, what the heck are all these factories?):
-
-            from functools import partial
-            from zquantum.core.estimation import (
-                estimate_expectation_values_by_averaging,
-                allocate_shots_uniformly
-            )
-            from zquantum.core.cost_function import (
-                substitution_based_estimation_tasks_factory,
-                create_cost_function,
-            )
-
-            cost_hamiltonian = ...
-            ansatz = ...
-
-            estimation_preprocessors = [partial(allocate_shots_uniformly, number_of_shots=1000)]
-            estimation_tasks_factory_generator = partial(
-                substitution_based_estimation_tasks_factory,
-                target_operator=cost_hamiltonian,
-                estimation_preprocessors=estimation_preprocessors
-            )
-            cost_function_factory = partial(
-                create_cost_function,
-                backend=QuantumBackend,
-                estimation_method=estimate_expectation_values_by_averaging,
-                parameter_preprocessors=None,
-            )
-
-            initial_params = np.array([0.42, 4.2])
-            inner_optimizer = ...
-
-            optimizer = LayerwiseAnsatzOptimizer(
-                ansatz,
-                inner_optimizer,
-                estimation_tasks_factory_generator,
-                cost_function_factory,
-                min_layer = ...,
-                max_layer = ...,
-            )
-
-            opt_result = optimizer.minimize(initial_params)
+            n_layers_per_iteration: number of layers added for each iteration.
+            parameters_initializer: method for initializing parameters of the added layers.
+                See append_new_random_params for example of an implementation.
         """
 
         assert 0 <= min_layer <= max_layer
@@ -118,12 +91,21 @@ class LayerwiseAnsatzOptimizer(NestedOptimizer):
         keep_history: bool = False,
     ) -> OptimizeResult:
         """
-        Finds the parameters which minimize given cost function, by trying all the parameters from the grid.
+        Finds the parameters that minimize the value of the cost function created using `cost_function_factory`.
+        In each iteration the number of layers of ansatz are increased, and therefore new cost function
+        is created and the size of the parameter vector increases.
+
+        NOTE:
+            - The size of `initial_params` should correspond to the number of parameters of the ansatz
+                with number of layers specified by `min_layer`.
+            - The optimal parameters should minimize the value of the cost function for the ansatz with
+                number of layers specified by `max_layer`.
 
         Args:
-            # TODO
-            cost_function: object representing cost function we want to minimize
-            inital_params: initial parameters for the cost function
+            cost_function_factory: a function that returns a cost function that depends on the provided ansatz.
+            inital_params: initial parameters for the cost function,
+            keep_history: flag indicating whether history of cost function
+                evaluations should be recorded.
 
         """
         ansatz = copy.deepcopy(self._ansatz)
