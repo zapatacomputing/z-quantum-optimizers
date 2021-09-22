@@ -110,26 +110,6 @@ class TestLayerwiseAnsatzOptimizer:
                 max_layer=max_layer,
             )
 
-    @pytest.mark.parametrize(
-        "inner_optimizer",
-        [
-            ScipyOptimizer("L-BFGS-B"),
-            ScipyOptimizer("COBYLA"),
-            ScipyOptimizer("Nelder-Mead")
-        ]
-    )
-    def test_retains_inner_optimizer_passed_during_initialization(
-        self, inner_optimizer, ansatz
-    ):
-        optimizer = LayerwiseAnsatzOptimizer(
-            ansatz=ansatz,
-            inner_optimizer=inner_optimizer,
-            min_layer=1,
-            max_layer=10,
-        )
-
-        assert optimizer.inner_optimizer is inner_optimizer
-
 
 @pytest.mark.parametrize(
     "target_size,params",
