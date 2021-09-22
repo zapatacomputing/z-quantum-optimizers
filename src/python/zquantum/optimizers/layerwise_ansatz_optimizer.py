@@ -129,8 +129,8 @@ class LayerwiseAnsatzOptimizer(NestedOptimizer):
             cost_function = cost_function_factory(ansatz=ansatz)
 
             if keep_history:
-                cost_function = self._recorder(cost_function)
-            layer_results = self._inner_optimizer.minimize(
+                cost_function = self.recorder(cost_function)
+            layer_results = self.inner_optimizer.minimize(
                 cost_function, initial_params_per_iteration, keep_history=False
             )
 
