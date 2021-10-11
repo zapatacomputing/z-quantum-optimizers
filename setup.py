@@ -23,8 +23,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     setup_requires=["setuptools_scm~=6.0"],
-    install_requires=[
-        "z-quantum-core",
-        "cma==2.7.0",
-    ],
+    install_requires=["z-quantum-core", "cma==2.7.0", "scikit-quant~=0.8"],
 )
