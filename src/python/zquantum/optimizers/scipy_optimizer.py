@@ -24,7 +24,8 @@ class ScipyOptimizer(Optimizer):
             method: defines the optimization method
             constraints: list of constraints in the scipy compatible format.
             options: dictionary with additional options for the optimizer.
-            recorder: recorder object which defines how to store the optimization history.
+            recorder: recorder object which defines how to store
+                the optimization history.
 
         """
         super().__init__(recorder=recorder)

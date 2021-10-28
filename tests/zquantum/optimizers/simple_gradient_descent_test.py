@@ -39,14 +39,16 @@ class TestSimpleGradientDescent(OptimizerTests):
         self, optimizer, rosenbrock_function, keep_history
     ):
         pytest.xfail(
-            """This test fails since the gradient of the rosenbrock function is too sensitive when using finite differences"""
+            """This test fails since the gradient of the rosenbrock function "
+            "is too sensitive when using finite differences"""
         )
 
     def test_optimizer_succeeds_on_cost_function_without_gradient(
         self, optimizer, sum_x_squared
     ):
         pytest.xfail(
-            """This test fails since TestSimpleGradientDescent requires cost_function to have gradient method"""
+            """This test fails since TestSimpleGradientDescent requires cost_function "
+            "to have gradient method"""
         )
 
     def test_fails_to_initialize_when_number_of_iterations_is_negative(self):
@@ -56,6 +58,8 @@ class TestSimpleGradientDescent(OptimizerTests):
     def test_fails_to_minimize_when_cost_function_does_not_have_gradient_method(
         self, optimizer
     ):
-        cost_function = lambda x: sum(x)
+        def cost_function(x):
+            return sum(x)
+
         with pytest.raises(AssertionError):
             optimizer.minimize(cost_function, np.array([0, 0]))

@@ -23,7 +23,8 @@ class SimpleGradientDescent(Optimizer):
         """
         Args:
             parameter_values_list: list of parameter values to evaluate
-            recorder: recorder object which defines how to store the optimization history.
+            recorder: recorder object which defines how to store
+                the optimization history.
         """
         super().__init__(recorder=recorder)
         self.learning_rate = learning_rate
@@ -38,7 +39,8 @@ class SimpleGradientDescent(Optimizer):
         keep_history: bool = False,
     ) -> OptimizeResult:
         """
-        Finds the parameters which minimize given cost function, by trying all the parameters from the provided list of points.
+        Finds the parameters which minimize given cost function, by trying all
+        the parameters from the provided list of points.
 
         Args:
             cost_function: object representing cost function we want to minimize

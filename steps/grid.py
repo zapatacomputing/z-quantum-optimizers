@@ -10,7 +10,7 @@ from zquantum.optimizers.grid_search import (
     ParameterGrid,
 )
 
-# Build uniform parameter grid
+
 def build_uniform_param_grid(
     ansatz_specs: Optional[Specs] = None,
     number_of_params_per_layer: Optional[int] = None,

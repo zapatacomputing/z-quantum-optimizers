@@ -35,7 +35,8 @@ def optimize_variational_circuit(
     thetas=None,
 ):
     warnings.warn(
-        "optimize_variational_circuit will be depreciated in favor of optimize_ansatz_based_cost_function in steps/optimize.py in z-quantum-core.",
+        "optimize_variational_circuit will be depreciated in favor of "
+        "optimize_ansatz_based_cost_function in steps/optimize.py in z-quantum-core.",
         DeprecationWarning,
     )
     if initial_parameters != "None":
@@ -185,7 +186,8 @@ def optimize_variational_circuit(
     save_array(opt_results.opt_params, "optimized-parameters.json")
 
 
-# CMA-ES optimization returns `xbest`, the best solution evaluated, but one might want to have `xfavorite`, which is the current best estimate of the optimum
+# CMA-ES optimization returns `xbest`, the best solution evaluated, but one might
+# want to have `xfavorite`, which is the current best estimate of the optimum
 def extract_xfav_params_from_cma_es_opt_results(optimization_results):
     opt_results = load_optimization_results(optimization_results)
     save_array(np.array(opt_results.cma_xfavorite), "fav-params.json")
