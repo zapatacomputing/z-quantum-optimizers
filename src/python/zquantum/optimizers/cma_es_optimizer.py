@@ -1,15 +1,16 @@
+from typing import Dict, Optional
+
+import cma
 import numpy as np
+from scipy.optimize import OptimizeResult
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
-    optimization_result,
     construct_history_info,
+    optimization_result,
 )
 from zquantum.core.typing import RecorderFactory
-from scipy.optimize import OptimizeResult
-import cma
-from typing import Dict, Optional
 
 
 class CMAESOptimizer(Optimizer):
@@ -25,7 +26,8 @@ class CMAESOptimizer(Optimizer):
             sigma_0: please refer to https://github.com/CMA-ES/pycma documentation.
             options: dictionary with options for the optimizer,
                 please refer to https://github.com/CMA-ES/pycma documentation.
-            recorder: recorder object which defines how to store the optimization history.
+            recorder: recorder object which defines how to store
+                the optimization history.
         """
         super().__init__(recorder=recorder)
         self.sigma_0 = sigma_0

@@ -1,15 +1,15 @@
+from typing import Callable, Union
+
 import numpy as np
+import scipy.optimize
+from zquantum.core.history.recorder import recorder as _recorder
+from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
-    optimization_result,
     construct_history_info,
+    optimization_result,
 )
-from zquantum.core.interfaces.functions import CallableWithGradient
-from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.typing import RecorderFactory
-
-from typing import Callable, Union
-import scipy.optimize
 
 
 class BasinHoppingOptimizer(Optimizer):
@@ -27,8 +27,9 @@ class BasinHoppingOptimizer(Optimizer):
         recorder: RecorderFactory = _recorder,
     ):
         """The BasinHoppingOptimizer utilizes the scipy.optimize.basinhopping method
-        (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html). It is intended
-        to be used in conjunction with methods of scipy.optimize.minimize for local optimization.
+        (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html).
+        It is intended to be used in conjunction with methods of
+        scipy.optimize.minimize for local optimization.
 
         Args:
             niter: See scipy.optimize.basinhopping
@@ -40,7 +41,7 @@ class BasinHoppingOptimizer(Optimizer):
             interval: See scipy.optimize.basinhopping
             disp: See scipy.optimize.basinhopping
             niter_success: See scipy.optimize.basinhopping
-        """
+        """  # noqa
         super().__init__(recorder=recorder)
         self.niter = niter
         self.T = T

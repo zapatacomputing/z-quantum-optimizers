@@ -1,17 +1,18 @@
+import warnings
+from typing import Optional
+
+import numpy as np
+from scipy.optimize import OptimizeResult
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
-    optimization_result,
     construct_history_info,
+    optimization_result,
 )
 from zquantum.core.typing import RecorderFactory
 
 from ._parameter_grid import ParameterGrid
-from scipy.optimize import OptimizeResult
-from typing import Optional
-import numpy as np
-import warnings
 
 
 class GridSearchOptimizer(Optimizer):
@@ -23,10 +24,12 @@ class GridSearchOptimizer(Optimizer):
         """
         Args:
             grid: object defining for which parameters we want do the evaluations
-            recorder: recorder object which defines how to store the optimization history.
+            recorder: recorder object which defines how to store
+                the optimization history.
         """
         warnings.warn(
-            "The GridSearchOptimizer will soon be deprecated in favor of the SearchPointsOptimizer.",
+            "The GridSearchOptimizer will soon be deprecated in favor"
+            "of the SearchPointsOptimizer.",
             DeprecationWarning,
         )
         super().__init__(recorder=recorder)
@@ -39,7 +42,8 @@ class GridSearchOptimizer(Optimizer):
         keep_history: bool = False,
     ) -> OptimizeResult:
         """
-        Finds the parameters which minimize given cost function, by trying all the parameters from the grid.
+        Finds the parameters which minimize given cost function, by trying
+        all the parameters from the grid.
 
         Args:
             cost_function: object representing cost function we want to minimize
@@ -49,7 +53,7 @@ class GridSearchOptimizer(Optimizer):
 
         """
         if initial_params is not None and len(initial_params) != 0:
-            Warning("Grid search doesn't use initial parameters, they will be ignored.")
+            Warning("Grid search doesn't use initial parameters,they will be ignored.")
 
         min_value = None
         nfev = 0
@@ -76,7 +80,8 @@ class GridSearchOptimizer(Optimizer):
             optimization_results: an optimization results dictionary
 
         Returns:
-            numpy.ndarray: the values obtained at each grid point, shaped to have the same dimensions as the mesh grid
+            numpy.ndarray: the values obtained at each grid point,
+                shaped to have the same dimensions as the mesh grid
         """
         values = np.array([step["value"] for step in optimization_results["history"]])
         return np.reshape(values, self.grid.params_meshgrid[0].shape)

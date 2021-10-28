@@ -1,7 +1,9 @@
-from ._parameter_grid import ParameterGrid
-from zquantum.core.utils import SCHEMA_VERSION
-from zquantum.core.typing import Writeable
 import json
+
+from zquantum.core.typing import Writeable
+from zquantum.core.utils import SCHEMA_VERSION
+
+from ._parameter_grid import ParameterGrid
 
 
 def save_parameter_grid(grid: ParameterGrid, filename: str) -> None:

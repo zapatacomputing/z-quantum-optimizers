@@ -1,16 +1,16 @@
+import copy
+from typing import Optional
+
+import numpy as np
+from scipy.optimize import OptimizeResult
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
 from zquantum.core.interfaces.optimizer import (
     Optimizer,
-    optimization_result,
     construct_history_info,
+    optimization_result,
 )
 from zquantum.core.typing import RecorderFactory
-
-from scipy.optimize import OptimizeResult
-from typing import Optional
-import numpy as np
-import copy
 
 
 class SimpleGradientDescent(Optimizer):
@@ -23,7 +23,8 @@ class SimpleGradientDescent(Optimizer):
         """
         Args:
             parameter_values_list: list of parameter values to evaluate
-            recorder: recorder object which defines how to store the optimization history.
+            recorder: recorder object which defines how to store
+                the optimization history.
         """
         super().__init__(recorder=recorder)
         self.learning_rate = learning_rate
@@ -38,7 +39,8 @@ class SimpleGradientDescent(Optimizer):
         keep_history: bool = False,
     ) -> OptimizeResult:
         """
-        Finds the parameters which minimize given cost function, by trying all the parameters from the provided list of points.
+        Finds the parameters which minimize given cost function, by trying all
+        the parameters from the provided list of points.
 
         Args:
             cost_function: object representing cost function we want to minimize

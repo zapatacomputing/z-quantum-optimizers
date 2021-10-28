@@ -1,14 +1,15 @@
+from typing import Callable, Dict, Optional, Tuple
+
 import numpy as np
-from zquantum.core.interfaces.optimizer import (
-    Optimizer,
-    optimization_result,
-    construct_history_info,
-)
+import scipy
 from zquantum.core.history.recorder import recorder as _recorder
 from zquantum.core.interfaces.functions import CallableWithGradient
+from zquantum.core.interfaces.optimizer import (
+    Optimizer,
+    construct_history_info,
+    optimization_result,
+)
 from zquantum.core.typing import RecorderFactory
-from typing import Optional, Tuple, Callable, Dict
-import scipy
 
 
 class ScipyOptimizer(Optimizer):
@@ -24,7 +25,8 @@ class ScipyOptimizer(Optimizer):
             method: defines the optimization method
             constraints: list of constraints in the scipy compatible format.
             options: dictionary with additional options for the optimizer.
-            recorder: recorder object which defines how to store the optimization history.
+            recorder: recorder object which defines how to store
+                the optimization history.
 
         """
         super().__init__(recorder=recorder)

@@ -1,11 +1,9 @@
 import numpy as np
+import pytest
 from zquantum.core.gradients import finite_differences_gradient
 from zquantum.core.interfaces.functions import FunctionWithGradient
-from zquantum.core.interfaces.optimizer_test import (
-    OptimizerTests,
-)
+from zquantum.core.interfaces.optimizer_test import OptimizerTests
 from zquantum.optimizers.scipy_optimizer import ScipyOptimizer
-import pytest
 
 
 @pytest.fixture(

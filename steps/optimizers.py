@@ -1,20 +1,20 @@
-from zquantum.optimizers.grid_search import load_parameter_grid
-
-from zquantum.core.serialization import save_array, load_array
-
-from zquantum.core.circuits.layouts import load_circuit_connectivity
-from zquantum.core.measurement import load_expectation_values
-from zquantum.core.estimation import estimate_expectation_values_by_averaging
-from zquantum.core.openfermion import load_qubit_operator
-from zquantum.core.utils import create_object, load_noise_model, load_list
-from zquantum.core.serialization import (
-    save_optimization_results,
-    load_optimization_results,
-)
-import yaml
-import numpy as np
-from typing import Optional
 import warnings
+from typing import Optional
+
+import numpy as np
+import yaml
+from zquantum.core.circuits.layouts import load_circuit_connectivity
+from zquantum.core.estimation import estimate_expectation_values_by_averaging
+from zquantum.core.measurement import load_expectation_values
+from zquantum.core.openfermion import load_qubit_operator
+from zquantum.core.serialization import (
+    load_array,
+    load_optimization_results,
+    save_array,
+    save_optimization_results,
+)
+from zquantum.core.utils import create_object, load_list, load_noise_model
+from zquantum.optimizers.grid_search import load_parameter_grid
 
 
 def optimize_variational_circuit(
@@ -35,7 +35,8 @@ def optimize_variational_circuit(
     thetas=None,
 ):
     warnings.warn(
-        "optimize_variational_circuit will be depreciated in favor of optimize_ansatz_based_cost_function in steps/optimize.py in z-quantum-core.",
+        "optimize_variational_circuit will be depreciated in favor of "
+        "optimize_ansatz_based_cost_function in steps/optimize.py in z-quantum-core.",
         DeprecationWarning,
     )
     if initial_parameters != "None":
@@ -185,7 +186,8 @@ def optimize_variational_circuit(
     save_array(opt_results.opt_params, "optimized-parameters.json")
 
 
-# CMA-ES optimization returns `xbest`, the best solution evaluated, but one might want to have `xfavorite`, which is the current best estimate of the optimum
+# CMA-ES optimization returns `xbest`, the best solution evaluated, but one might
+# want to have `xfavorite`, which is the current best estimate of the optimum
 def extract_xfav_params_from_cma_es_opt_results(optimization_results):
     opt_results = load_optimization_results(optimization_results)
     save_array(np.array(opt_results.cma_xfavorite), "fav-params.json")
