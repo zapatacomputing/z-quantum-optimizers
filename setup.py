@@ -1,9 +1,14 @@
+import warnings
 import setuptools
 
+try:
+    from subtrees.z_quantum_actions.setup_extras import extras
+except ImportError:
+    warnings.warn("Unable to import extras")
+    extras = {}
 
 with open("README.md", "r") as f:
     long_description = f.read()
-
 
 setuptools.setup(
     name="z-quantum-optimizers",
@@ -27,4 +32,5 @@ setuptools.setup(
         "z-quantum-core",
         "cma==2.7.0",
     ],
+    extras_require=extras,
 )
