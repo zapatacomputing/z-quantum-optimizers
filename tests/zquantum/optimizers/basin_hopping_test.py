@@ -1,8 +1,6 @@
-from zquantum.core.interfaces.optimizer_test import (
-    OptimizerTests,
-)
-from zquantum.optimizers.basin_hopping import BasinHoppingOptimizer
 import pytest
+from zquantum.core.interfaces.optimizer_test import OptimizerTests
+from zquantum.optimizers.basin_hopping import BasinHoppingOptimizer
 
 
 @pytest.fixture(

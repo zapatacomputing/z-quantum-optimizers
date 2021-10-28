@@ -1,8 +1,9 @@
 import os
+
 from zquantum.optimizers.grid_search import (
     ParameterGrid,
-    save_parameter_grid,
     load_parameter_grid,
+    save_parameter_grid,
 )
 
 

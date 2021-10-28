@@ -2,9 +2,7 @@ import numpy as np
 import pytest
 from scipy.optimize import OptimizeResult
 from zquantum.core.interfaces.optimizer_test import OptimizerTests
-from zquantum.optimizers.search_points_optimizer import (
-    SearchPointsOptimizer,
-)
+from zquantum.optimizers.search_points_optimizer import SearchPointsOptimizer
 
 
 @pytest.fixture(

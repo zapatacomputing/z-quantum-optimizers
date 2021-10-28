@@ -1,14 +1,14 @@
 from typing import Optional
-from zquantum.core.typing import Specs, Union
+
 import numpy as np
-from zquantum.core.utils import load_from_specs
 from zquantum.core.serialization import save_array
+from zquantum.core.typing import Specs, Union
+from zquantum.core.utils import load_from_specs
+from zquantum.optimizers.grid_search import ParameterGrid
 from zquantum.optimizers.grid_search import (
     build_uniform_param_grid as _build_uniform_param_grid,
-    save_parameter_grid,
-    load_parameter_grid,
-    ParameterGrid,
 )
+from zquantum.optimizers.grid_search import load_parameter_grid, save_parameter_grid
 
 
 def build_uniform_param_grid(
