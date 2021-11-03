@@ -1,6 +1,6 @@
 # z-quantum-optimizers
 
-[![codecov](https://codecov.io/gh/zapatacomputing/z-quantum-optimizers/branch/master/graph/badge.svg?token=JZ7YI4DWOE)](https://codecov.io/gh/zapatacomputing/z-quantum-optimizers)
+[![codecov](https://codecov.io/gh/zapatacomputing/z-quantum-optimizers/branch/main/graph/badge.svg?token=JZ7YI4DWOE)](https://codecov.io/gh/zapatacomputing/z-quantum-optimizers)
 
 ## What is it?
 
@@ -24,7 +24,7 @@ imports:
   type: git
   parameters:
     repository: "git@github.com:zapatacomputing/z-quantum-optimizers.git"
-    branch: "master"
+    branch: "main"
 ```
 
 and then add it in the `imports` argument of your `step`:
