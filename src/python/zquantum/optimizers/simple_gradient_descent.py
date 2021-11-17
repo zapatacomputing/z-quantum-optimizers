@@ -55,7 +55,7 @@ class SimpleGradientDescent(Optimizer):
         for _ in range(self.number_of_iterations):
             gradients = cost_function.gradient(current_parameters)
             current_parameters = current_parameters - (self.learning_rate * gradients)
-            if keep_history == True:
+            if keep_history:
                 _ = cost_function(current_parameters)
 
         final_value = cost_function(current_parameters)
