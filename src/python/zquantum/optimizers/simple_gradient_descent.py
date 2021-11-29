@@ -42,11 +42,20 @@ class SimpleGradientDescent(Optimizer):
         Finds the parameters which minimize given cost function, by trying all
         the parameters from the provided list of points.
 
+        Note:
+            This optimizer does not require evaluation of the cost function,
+            but relies only on gradient evaluation. This means, that if we want to
+            keep track of values of the cost functions for each iteration, we
+            need to perform extra evaluations. Therefore using `keep_history=True`
+            will increase add extra evaluations that are not necessary for
+            the optimization process itslelf.
+
         Args:
             cost_function: object representing cost function we want to minimize
             inital_params: initial parameters for the cost function
             keep_history: flag indicating whether history of cost function
-                evaluations should be recorded.
+                evaluations should be recorded. Using this will increase runtime,
+                see note.
 
         """
         assert hasattr(cost_function, "gradient")
@@ -56,9 +65,10 @@ class SimpleGradientDescent(Optimizer):
             gradients = cost_function.gradient(current_parameters)
             current_parameters = current_parameters - (self.learning_rate * gradients)
             if keep_history:
-                _ = cost_function(current_parameters)
+                final_value = cost_function(current_parameters)
 
-        final_value = cost_function(current_parameters)
+        if not keep_history:
+            final_value = cost_function(current_parameters)
 
         return optimization_result(
             opt_value=final_value,
