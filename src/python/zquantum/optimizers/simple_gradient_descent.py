@@ -47,8 +47,8 @@ class SimpleGradientDescent(Optimizer):
             but relies only on gradient evaluation. This means, that if we want to
             keep track of values of the cost functions for each iteration, we
             need to perform extra evaluations. Therefore using `keep_history=True`
-            will increase add extra evaluations that are not necessary for
-            the optimization process itslelf.
+            will add extra evaluations that are not necessary for
+            the optimization process itself.
 
         Args:
             cost_function: object representing cost function we want to minimize
