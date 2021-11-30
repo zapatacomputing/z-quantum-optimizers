@@ -61,3 +61,8 @@ class TestSimpleGradientDescent(OptimizerTests):
 
         with pytest.raises(AssertionError):
             optimizer.minimize(cost_function, np.array([0, 0]))
+
+    def test_history_contains_function_evaluations(self, optimizer, sum_x_squared):
+        results = optimizer.minimize(sum_x_squared, np.array([1, 0]), keep_history=True)
+
+        assert len(results.history) == optimizer.number_of_iterations
