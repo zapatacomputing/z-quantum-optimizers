@@ -35,7 +35,7 @@ class ParameterGrid:
         return cls(data["param_ranges"])
 
     @property
-    def params_meshgrid(self) -> Tuple[np.ndarray, ...]:
+    def params_meshgrid(self) -> List[np.ndarray]:
         """
         Creates a meshgrid from the parameter ranges.
         """
