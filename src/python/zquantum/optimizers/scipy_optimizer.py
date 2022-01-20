@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import scipy
@@ -17,24 +17,34 @@ class ScipyOptimizer(Optimizer):
         self,
         method: str,
         constraints: Optional[Tuple[Dict[str, Callable]]] = None,
+        bounds: Union[
+            scipy.optimize.Bounds,
+            Sequence[Tuple[float, float]],
+            None,
+        ] = None,
         options: Optional[Dict] = None,
         recorder: RecorderFactory = _recorder,
     ):
         """
+        Integration with scipy optimizers. Documentation for this module is minimal,
+        please refer to https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+
         Args:
             method: defines the optimization method
             constraints: list of constraints in the scipy compatible format.
+            bounds: bounds for the parameters in the scipy compatible format.
             options: dictionary with additional options for the optimizer.
             recorder: recorder object which defines how to store
                 the optimization history.
 
-        """
+        """  # noqa: E501
         super().__init__(recorder=recorder)
         self.method = method
         if options is None:
             options = {}
         self.options = options
         self.constraints = [] if constraints is None else constraints
+        self.bounds = bounds
 
     def _minimize(
         self,
@@ -65,6 +75,7 @@ class ScipyOptimizer(Optimizer):
             method=self.method,
             options=self.options,
             constraints=self.constraints,
+            bounds=self.bounds,
             jac=jacobian,
         )
         opt_value = result.fun
