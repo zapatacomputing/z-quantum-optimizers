@@ -1,6 +1,6 @@
 import json
 
-from zquantum.core.typing import Readable
+from zquantum.core.typing import LoadSource, Readable
 from zquantum.core.utils import SCHEMA_VERSION
 
 from ._parameter_grid import ParameterGrid
@@ -21,7 +21,7 @@ def save_parameter_grid(grid: ParameterGrid, filename: str) -> None:
         f.write(json.dumps(data))
 
 
-def load_parameter_grid(file: Readable) -> ParameterGrid:
+def load_parameter_grid(file: LoadSource) -> ParameterGrid:
     """Loads a parameter grid from a file.
 
     Args:
@@ -29,7 +29,7 @@ def load_parameter_grid(file: Readable) -> ParameterGrid:
 
     """
 
-    if isinstance(file, str):
+    if not isinstance(file, Readable):
         with open(file, "r") as f:
             data = json.load(f)
     else:
