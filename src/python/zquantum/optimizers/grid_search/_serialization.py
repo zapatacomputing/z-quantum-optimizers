@@ -1,6 +1,6 @@
 import json
 
-from zquantum.core.typing import Writeable
+from zquantum.core.typing import Readable
 from zquantum.core.utils import SCHEMA_VERSION
 
 from ._parameter_grid import ParameterGrid
@@ -10,8 +10,8 @@ def save_parameter_grid(grid: ParameterGrid, filename: str) -> None:
     """Saves a parameter grid to a file.
 
     Args:
-        grid (core.circuit.ParameterGrid): the parameter grid to be saved
-        filename (str): the name of the file
+        grid: the parameter grid to be saved
+        filename: the name of the file
     """
 
     data = grid.to_dict()
@@ -21,14 +21,12 @@ def save_parameter_grid(grid: ParameterGrid, filename: str) -> None:
         f.write(json.dumps(data))
 
 
-def load_parameter_grid(file: Writeable) -> ParameterGrid:
+def load_parameter_grid(file: Readable) -> ParameterGrid:
     """Loads a parameter grid from a file.
 
     Args:
-        file (str or file-like object): the name of the file, or a file-like object.
+        file: the name of the file, or a file-like object.
 
-    Returns:
-        core.circuit.ParameterGrid: the parameter grid
     """
 
     if isinstance(file, str):

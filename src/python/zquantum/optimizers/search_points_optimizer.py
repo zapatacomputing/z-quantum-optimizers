@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Callable, List, Optional, Union
 
 import numpy as np
 from scipy.optimize import OptimizeResult
@@ -30,7 +30,7 @@ class SearchPointsOptimizer(Optimizer):
 
     def _minimize(
         self,
-        cost_function: CallableWithGradient,
+        cost_function: Union[CallableWithGradient, Callable],
         initial_params: Optional[np.ndarray] = None,
         keep_history: bool = False,
     ) -> OptimizeResult:
@@ -65,5 +65,5 @@ class SearchPointsOptimizer(Optimizer):
             opt_params=optimal_params,
             nfev=len(self.parameter_values_list),
             nit=None,
-            **construct_history_info(cost_function, keep_history)
+            **construct_history_info(cost_function, keep_history)  # type: ignore
         )
