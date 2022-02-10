@@ -48,7 +48,7 @@ class ScipyOptimizer(Optimizer):
 
     def _minimize(
         self,
-        cost_function: CallableWithGradient,
+        cost_function: Union[CallableWithGradient, Callable],
         initial_params: np.ndarray = None,
         keep_history: bool = False,
     ):
@@ -64,7 +64,7 @@ class ScipyOptimizer(Optimizer):
         """
 
         jacobian = None
-        if hasattr(cost_function, "gradient") and callable(
+        if isinstance(cost_function, CallableWithGradient) and callable(
             getattr(cost_function, "gradient")
         ):
             jacobian = cost_function.gradient
@@ -89,5 +89,5 @@ class ScipyOptimizer(Optimizer):
             opt_params=opt_params,
             nit=nit,
             nfev=nfev,
-            **construct_history_info(cost_function, keep_history)
+            **construct_history_info(cost_function, keep_history)  # type: ignore
         )

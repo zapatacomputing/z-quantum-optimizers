@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional
+from typing import Callable, Optional, Union
 
 import numpy as np
 from scipy.optimize import OptimizeResult
@@ -37,7 +37,7 @@ class GridSearchOptimizer(Optimizer):
 
     def _minimize(
         self,
-        cost_function: CallableWithGradient,
+        cost_function: Union[CallableWithGradient, Callable],
         initial_params: Optional[np.ndarray] = None,
         keep_history: bool = False,
     ) -> OptimizeResult:
@@ -70,7 +70,7 @@ class GridSearchOptimizer(Optimizer):
             opt_params=optimal_params,
             nfev=nfev,
             nit=None,
-            **construct_history_info(cost_function, keep_history)
+            **construct_history_info(cost_function, keep_history)  # type: ignore
         )
 
     def get_values_grid(self, optimization_results: OptimizeResult) -> np.ndarray:

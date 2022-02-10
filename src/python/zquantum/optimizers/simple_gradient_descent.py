@@ -1,5 +1,5 @@
 import copy
-from typing import Optional
+from typing import Callable, Optional, Union
 
 import numpy as np
 from scipy.optimize import OptimizeResult
@@ -34,8 +34,8 @@ class SimpleGradientDescent(Optimizer):
 
     def _minimize(
         self,
-        cost_function: CallableWithGradient,
-        initial_params: Optional[np.ndarray] = None,
+        cost_function: Union[CallableWithGradient, Callable],
+        initial_params: np.ndarray,
         keep_history: bool = False,
     ) -> OptimizeResult:
         """
@@ -58,7 +58,7 @@ class SimpleGradientDescent(Optimizer):
                 see note.
 
         """
-        assert hasattr(cost_function, "gradient")
+        assert isinstance(cost_function, CallableWithGradient)
 
         current_parameters = copy.deepcopy(initial_params)
         for _ in range(self.number_of_iterations):
@@ -75,5 +75,5 @@ class SimpleGradientDescent(Optimizer):
             opt_params=current_parameters,
             nit=self.number_of_iterations,
             nfev=None,
-            **construct_history_info(cost_function, keep_history),
+            **construct_history_info(cost_function, keep_history),  # type: ignore
         )
