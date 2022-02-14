@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import scipy
@@ -17,28 +17,38 @@ class ScipyOptimizer(Optimizer):
         self,
         method: str,
         constraints: Optional[Tuple[Dict[str, Callable]]] = None,
+        bounds: Union[
+            scipy.optimize.Bounds,
+            Sequence[Tuple[float, float]],
+            None,
+        ] = None,
         options: Optional[Dict] = None,
         recorder: RecorderFactory = _recorder,
     ):
         """
+        Integration with scipy optimizers. Documentation for this module is minimal,
+        please refer to https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+
         Args:
             method: defines the optimization method
             constraints: list of constraints in the scipy compatible format.
+            bounds: bounds for the parameters in the scipy compatible format.
             options: dictionary with additional options for the optimizer.
             recorder: recorder object which defines how to store
                 the optimization history.
 
-        """
+        """  # noqa: E501
         super().__init__(recorder=recorder)
         self.method = method
         if options is None:
             options = {}
         self.options = options
         self.constraints = [] if constraints is None else constraints
+        self.bounds = bounds
 
     def _minimize(
         self,
-        cost_function: CallableWithGradient,
+        cost_function: Union[CallableWithGradient, Callable],
         initial_params: np.ndarray = None,
         keep_history: bool = False,
     ):
@@ -54,7 +64,7 @@ class ScipyOptimizer(Optimizer):
         """
 
         jacobian = None
-        if hasattr(cost_function, "gradient") and callable(
+        if isinstance(cost_function, CallableWithGradient) and callable(
             getattr(cost_function, "gradient")
         ):
             jacobian = cost_function.gradient
@@ -65,6 +75,7 @@ class ScipyOptimizer(Optimizer):
             method=self.method,
             options=self.options,
             constraints=self.constraints,
+            bounds=self.bounds,
             jac=jacobian,
         )
         opt_value = result.fun
@@ -78,5 +89,5 @@ class ScipyOptimizer(Optimizer):
             opt_params=opt_params,
             nit=nit,
             nfev=nfev,
-            **construct_history_info(cost_function, keep_history)
+            **construct_history_info(cost_function, keep_history)  # type: ignore
         )

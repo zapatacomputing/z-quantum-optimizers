@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Callable, Dict, Optional, Union
 
 import cma
 import numpy as np
@@ -37,7 +37,7 @@ class CMAESOptimizer(Optimizer):
 
     def _minimize(
         self,
-        cost_function: CallableWithGradient,
+        cost_function: Union[CallableWithGradient, Callable],
         initial_params: np.ndarray,
         keep_history: bool = False,
     ) -> OptimizeResult:
@@ -66,5 +66,5 @@ class CMAESOptimizer(Optimizer):
             nfev=result.evaluations,
             nit=result.iterations,
             cma_xfavorite=list(result.xfavorite),
-            **construct_history_info(cost_function, keep_history)
+            **construct_history_info(cost_function, keep_history)  # type: ignore
         )

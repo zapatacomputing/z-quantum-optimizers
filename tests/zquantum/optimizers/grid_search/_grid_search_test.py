@@ -5,7 +5,7 @@ from zquantum.core.interfaces.optimizer_test import OptimizerTests
 from zquantum.optimizers.grid_search import GridSearchOptimizer, ParameterGrid
 
 
-@pytest.fixture(params=[ParameterGrid([[0, 1.5, 0.1], [0, 1.5, 0.1]])])
+@pytest.fixture(params=[ParameterGrid([(0, 1.5, 0.1), (0, 1.5, 0.1)])])
 def optimizer(request):
     return GridSearchOptimizer(request.param)
 

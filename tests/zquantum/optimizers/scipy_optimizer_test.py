@@ -19,12 +19,46 @@ def optimizer(request):
     return ScipyOptimizer(**request.param)
 
 
+@pytest.fixture(
+    params=[
+        {"method": "L-BFGS-B"},
+        {"method": "Nelder-Mead"},
+        {"method": "SLSQP"},
+    ]
+)
+def optimizer_with_bounds(request):
+    bounds = [(2, 3), (2, 3)]
+    return ScipyOptimizer(bounds=bounds, **request.param)
+
+
 @pytest.fixture(params=[True, False])
 def keep_history(request):
     return request.param
 
 
 class TestScipyOptimizer(OptimizerTests):
+    def test_optimizers_work_with_bounds_provided(
+        self, optimizer_with_bounds, sum_x_squared
+    ):
+
+        # Given
+        cost_function = FunctionWithGradient(
+            sum_x_squared, finite_differences_gradient(sum_x_squared)
+        )
+
+        initial_params = np.array([2.5, 2.5])
+        target_params = np.array([2, 2])
+        target_value = 8
+
+        # When
+        results = optimizer_with_bounds.minimize(
+            cost_function, initial_params=initial_params
+        )
+
+        # Then
+        assert results.opt_value == pytest.approx(target_value, abs=1e-3)
+        assert results.opt_params == pytest.approx(target_params, abs=1e-3)
+
     def test_SLSQP_with_equality_constraints(self, sum_x_squared, rosenbrock_function):
         # Given
         cost_function = FunctionWithGradient(
