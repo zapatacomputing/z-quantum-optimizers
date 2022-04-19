@@ -1,5 +1,5 @@
 ################################################################################
-# © Copyright 2021 Zapata Computing Inc.
+#© Copyright 2021-2022 Zapata Computing Inc.
 ################################################################################
 import pytest
 from zquantum.core.interfaces.mock_objects import mock_cost_function

@@ -1,5 +1,5 @@
 ################################################################################
-# © Copyright 2021 Zapata Computing Inc.
+#© Copyright 2021-2022 Zapata Computing Inc.
 ################################################################################
 from ._grid_search import GridSearchOptimizer
 from ._parameter_grid import ParameterGrid, build_uniform_param_grid
