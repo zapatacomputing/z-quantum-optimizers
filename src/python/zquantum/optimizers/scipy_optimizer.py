@@ -1,3 +1,6 @@
+################################################################################
+# © Copyright 2020-2022 Zapata Computing Inc.
+################################################################################
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
