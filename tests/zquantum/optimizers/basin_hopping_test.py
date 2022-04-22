@@ -1,3 +1,6 @@
+################################################################################
+# © Copyright 2021-2022 Zapata Computing Inc.
+################################################################################
 import pytest
 from zquantum.core.interfaces.optimizer_test import OptimizerTests
 from zquantum.optimizers.basin_hopping import BasinHoppingOptimizer

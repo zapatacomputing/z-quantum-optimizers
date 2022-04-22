@@ -1,3 +1,6 @@
+################################################################################
+# © Copyright 2021-2022 Zapata Computing Inc.
+################################################################################
 import numpy as np
 import pytest
 from zquantum.core.gradients import finite_differences_gradient
@@ -27,7 +30,7 @@ class TestSimpleGradientDescent(OptimizerTests):
     @pytest.fixture
     def sum_x_squared(self):
         def _sum_x_squared(x):
-            return sum(x ** 2)
+            return sum(x**2)
 
         return function_with_gradient(
             _sum_x_squared, finite_differences_gradient(_sum_x_squared)
