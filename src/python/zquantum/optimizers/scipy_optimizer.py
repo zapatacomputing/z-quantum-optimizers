@@ -26,6 +26,7 @@ class ScipyOptimizer(Optimizer):
             None,
         ] = None,
         options: Optional[Dict] = None,
+        callback: Optional[Callable] = None,
         recorder: RecorderFactory = _recorder,
     ):
         """
@@ -37,6 +38,8 @@ class ScipyOptimizer(Optimizer):
             constraints: list of constraints in the scipy compatible format.
             bounds: bounds for the parameters in the scipy compatible format.
             options: dictionary with additional options for the optimizer.
+            callback: one-argument function (except for method="trust-constr")
+                that takes in the parameter vector xk after every iteration.
             recorder: recorder object which defines how to store
                 the optimization history.
 
@@ -48,6 +51,7 @@ class ScipyOptimizer(Optimizer):
         self.options = options
         self.constraints = [] if constraints is None else constraints
         self.bounds = bounds
+        self.callback = callback
 
     def _minimize(
         self,
@@ -80,6 +84,7 @@ class ScipyOptimizer(Optimizer):
             constraints=self.constraints,
             bounds=self.bounds,
             jac=jacobian,
+            callback=self.callback,
         )
         opt_value = result.fun
         opt_params = result.x
